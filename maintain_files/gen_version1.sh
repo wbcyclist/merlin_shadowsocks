@@ -126,3 +126,23 @@ else
 	fi
 fi
 
+# 7 WhiteList_new.txt
+if type md5sum >/dev/null 2>&1; then 
+	md5sum7=`md5sum WhiteList_new.txt|tr " " "\n"|sed -n 1p`
+	oldmd5sum7=`cat version1 | sed -n 7p | tr " " "\n" | sed -n 3p`
+	if [ "$md5sum7"x = "$oldmd5sum7"x ];then
+		echo 'WhiteList_new not changed'
+	else
+		echo 'update WhiteList_new!'
+		sed -i "7c `date +%Y-%m-%d` # $md5sum7 WhiteList_new" version1
+	fi
+else 
+	md5sum7=`md5 WhiteList_new.txt|tr " " "\n"|sed -n 4p`
+	oldmd5sum7=`cat version1 | sed -n 7p | tr " " "\n" | sed -n 3p`
+	if [ "$md5sum7"x = "$oldmd5sum7"x ];then
+		echo 'WhiteList_new not changed'
+	else
+		echo 'update WhiteList_new!'
+		gsed -i "7c `date +%Y-%m-%d` # $md5sum7 WhiteList_new" version1
+	fi
+fi

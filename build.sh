@@ -15,7 +15,7 @@ cp -f maintain_files/chnroute.txt shadowsocks/ss/rules/chnroute.txt
 #cp -f maintain_files/adblock.conf shadowsocks/ss/rules/adblock.conf
 cp -f maintain_files/cdn.txt shadowsocks/ss/rules/cdn.txt
 cp -f maintain_files/Routing.txt shadowsocks/ss/rules/Routing.txt
-cp -f maintain_files/WhiteList.txt shadowsocks/ss/rules/WhiteList.txt
+cp -f maintain_files/WhiteList_new.txt shadowsocks/ss/rules/WhiteList.txt
 
 cp -f maintain_files/version1 shadowsocks/ss/rules/version
 
