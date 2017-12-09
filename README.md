@@ -18,7 +18,7 @@ fork https://github.com/koolshare/koolshare.github.io
 该文件夹用于存放shadowsocks的开机启动文件，目前因为shadowsocks的启动依赖wan-start和nat-start两个启动文件，所以并没有用init.d的启动方式，而socks5使用了该方式
 
 * <b>shadowsocks.tar.gz</b><br/>
-此文件为shadowsocks文件夹的打包，通过路由器访问 [https://raw.githubusercontent.com/koolshare/koolshare.github.io/master/shadowsocks/shadowsocks.tar.gz](https://raw.githubusercontent.com/koolshare/koolshare.github.io/master/shadowsocks/shadowsocks.tar.gz) 获取安装包更新。
+此文件为shadowsocks文件夹的打包，通过路由器访问 [https://raw.githubusercontent.com/wbcyclist/merlin_shadowsocks/master/shadowsocks.tar.gz](https://raw.githubusercontent.com/wbcyclist/merlin_shadowsocks/master/shadowsocks.tar.gz) 获取安装包更新。
 
 * <b>version</b><br/>
 在线版本号和shadowsocks.tar.gz的md5校验值，用于判断更新。
@@ -27,7 +27,7 @@ fork https://github.com/koolshare/koolshare.github.io
 ## 如果你更新出现问题，请按照以下方式手动更新：
 ```
 cd /tmp
-wget --no-check-certificate --timeout=15 https://raw.githubusercontent.com/koolshare/koolshare.github.io/master/shadowsocks/shadowsocks.tar.gz
+wget --no-check-certificate --timeout=15 https://raw.githubusercontent.com/wbcyclist/merlin_shadowsocks/master/shadowsocks.tar.gz
 tar -zxvf /tmp/shadowsocks.tar.gz
 chmod +x /tmp/shadowsocks/install.sh
 sh /tmp/shadowsocks/install.sh
