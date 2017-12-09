@@ -5,7 +5,7 @@ source helper.sh
 # Variable definitions
 ss_basic_version_local=`cat /koolshare/ss/version`
 dbus set ss_basic_version_local=$ss_basic_version_local
-main_url="https://raw.githubusercontent.com/wbcyclist/merlin_shadowsocks"
+main_url="https://raw.githubusercontent.com/wbcyclist/merlin_shadowsocks/master"
 backup_url="http://koolshare.ngrok.wang:5000/shadowsocks"
 CONFIG_FILE=/koolshare/ss/ss.json
 DNS_PORT=7913

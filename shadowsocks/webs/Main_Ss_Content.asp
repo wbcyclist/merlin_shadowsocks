@@ -114,7 +114,7 @@ function pop_changelog() {
 			shadeClose: 1,
 			id: 'LAY_layuipro1',
 			btnAlign: 'c',
-			content: 'https://raw.githubusercontent.com/wbcyclist/merlin_shadowsocks/Changelog.txt',
+			content: 'https://raw.githubusercontent.com/wbcyclist/merlin_shadowsocks/master/Changelog.txt',
 		});
 	});
 }
@@ -1827,7 +1827,7 @@ function updatelist(action) {
 
 function version_show() {
 	$.ajax({
-		url: 'https://raw.githubusercontent.com/wbcyclist/merlin_shadowsocks/config.json.js',
+		url: 'https://raw.githubusercontent.com/wbcyclist/merlin_shadowsocks/master/config.json.js',
 		type: 'GET',
 		dataType: 'jsonp',
 		success: function(res) {
