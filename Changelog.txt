@@ -1,5 +1,41 @@
 Koolshare Asuswrt-Merlin shadowsocks Changelog
 ===========================================
+3.8.2 - 3.8.3
+   - fix 修复kcptun重启失败
+   - fix 修复chinadns2某些情况下开启失败的问题。
+   - fix 修复cdns方案下一些国内域名解析到国外ip的问题。
+   - update 更新5个国外DNS方案的说明，增加推荐等级。
+
+3.8.1
+   - fix 修复以前使用国内优先的用户升级到3.7.8 - 3.8.0后，国外不工作的问题。
+
+3.8.0
+   - fix 修复dns劫持功能失效导致自定义过DNS的出现问题。
+   - fix 修复chinadns2有时候启动失败的问题。
+   - revert 恢复原chinadns方案，为了区分命名为chinadns1，其中国dns使用【国内DNS设置的值】，上游方案固定为dns2socks。
+   - update 为了保证成功率，默认国外方案更换为dns2socks。
+
+3.7.9
+   - 说明  是否加会原来的一些dns解析方案待观察。
+   - fix 修复详细状态显示的信息不正确。
+
+3.7.8
+   - 说明  此次精简优化插件，为了提升DNS解析能力，移除了一些旧dns解析方案，
+      增加了更加科学好用的DNS解析方案，且设置上对小白非常友好。
+   - add 新增cdns解析方案，支持EDNS，自带国内外cdn（默认）；
+   - add 新增chinadns2解析方案，支持EDNS，自带国内外cdn；
+   - remove 移除dnscrypt-proxy解析方案;
+   - remove 移除pdnsd解析方案;
+   - remove 移除旧的chinadns解析方案;
+   - remove 移除Pcap_DNSproxy解析方案;
+   - remove 移除DNS偏好选择，改为后台自动判断优化;
+   - remove 移除chromecast设置，为了更好防dns污染，现在默认开启;
+   - remove 移除ss节点解析设置，改为后台自动判断优化;
+   - remove 移除国内cdn加速设置，因为现在dns方案具有cdn加速了;
+   - remove 移除黑科技按钮，以后需要截图请自行打码;
+   - remove 移除插件开机启动延迟;
+   - update 优化启动脚本，提升插件提交应用速度;
+
 3.7.7
    - update Pcap_DNSpproxy更新到最新0.4.9.5
    - update dnscrypt-proxy更新到最新1.9.5
