@@ -13,7 +13,15 @@ onstart() {
   while true; do
     sleep 2m
     if [ $(tail -n 5 /tmp/syslog.log | grep "invalid password or cipher" | wc -l) -ge 2 ] ; then
-      sh /koolshare/scripts/ss_config.sh
+      dbus set ss_basic_action=1
+      . /koolshare/ss/ssconfig.sh restart
+
+    elif [ $(ps | grep -v grep | grep -w ss-redir | wc -l) -eq 0 ] ; then
+      eval `dbus export ss`
+      if [ "$ss_basic_enable" == "1" ];then
+        dbus set ss_basic_action=1
+        . /koolshare/ss/ssconfig.sh restart
+      fi
     fi
   done
 }
