@@ -22,6 +22,8 @@ game_on=`dbus list ss_acl_mode|cut -d "=" -f 2 | grep 3`
 ip_prefix_hex=`nvram get lan_ipaddr | awk -F "." '{printf ("0x%02x", $1)} {printf ("%02x", $2)} {printf ("%02x", $3)} {printf ("00/0xffffff00\n")}'`
 ss_basic_password=`echo $ss_basic_password|base64_decode`
 IFIP=`echo $ss_basic_server|grep -E "([0-9]{1,3}[\.]){3}[0-9]{1,3}|:"`
+ARG_OBFS=""
+
 if [ -n "$ss_basic_rss_protocol" ];then
 	ss_basic_type=1
 else
@@ -38,7 +40,6 @@ install_ss(){
 	chmod a+x /tmp/shadowsocks/install.sh
 	echo_date 开始安装更新文件...
 	sh /tmp/shadowsocks/install.sh
-
 	rm -rf /tmp/shadowsocks*
 }
 
@@ -230,40 +231,6 @@ ss_pre_start(){
 		echo_date ss启动前触发:触发启动负载均衡功能！
 			#start haproxy
 			sh /koolshare/scripts/ss_lb_config.sh
-			#start kcptun
-			lb_node=`dbus list ssconf_basic_use_lb_|sed 's/ssconf_basic_use_lb_//g' |cut -d "=" -f 1 | sort -n`
-			for node in $lb_node
-			do	
-				name=`dbus get ssconf_basic_name_$node`
-				kcp=`dbus get ssconf_basic_use_kcp_$node`
-				kcp_server=`dbus get ssconf_basic_server_$node`
-				# marked for change in future 
-				server_ip=`nslookup "$kcp_server" 119.29.29.29 | sed '1,4d' | awk '{print $3}' | grep -v :|awk 'NR==1{print}'`
-				kcp_port=`dbus get ss_basic_kcp_port`
-				kcp_para=`dbus get ss_basic_kcp_parameter`
-				if [ "$kcp" == "1" ];then
-					export GOGC=40
-					if [ "$ss_basic_kcp_method" == "1" ];then
-						[ -n "$ss_basic_kcp_encrypt" ] && KCP_CRYPT="--crypt $ss_basic_kcp_encrypt"
-						[ -n "$ss_basic_kcp_password" ] && KCP_KEY="--key $ss_basic_kcp_password" || KCP_KEY=""
-						[ -n "$ss_basic_kcp_sndwnd" ] && KCP_SNDWND="--sndwnd $ss_basic_kcp_sndwnd" || KCP_SNDWND=""
-						[ -n "$ss_basic_kcp_rcvwnd" ] && KCP_RNDWND="--rcvwnd $ss_basic_kcp_rcvwnd" || KCP_RNDWND=""
-						[ -n "$ss_basic_kcp_mtu" ] && KCP_MTU="--mtu $ss_basic_kcp_mtu" || KCP_MTU=""
-						[ -n "$ss_basic_kcp_conn" ] && KCP_CONN="--conn $ss_basic_kcp_conn" || KCP_CONN=""
-						[ "$ss_basic_kcp_nocomp" == "1" ] && COMP="--nocomp" || COMP=""
-						[ -n "$ss_basic_kcp_mode" ] && KCP_MODE="--mode $ss_basic_kcp_mode" || KCP_MODE=""
-
-						start-stop-daemon -S -q -b -m \
-						-p /tmp/var/kcp.pid \
-						-x /koolshare/bin/client_linux_arm5 \
-						-- -l 127.0.0.1:1091 \
-						-r $server_ip:$kcp_port \
-						$KCP_CRYPT $KCP_KEY $KCP_SNDWND $KCP_RNDWND $KCP_MTU $KCP_CONN $COMP $KCP_MODE $ss_basic_kcp_extra
-					else
-						start-stop-daemon -S -q -b -m -p /tmp/var/kcp.pid -x /koolshare/bin/client_linux_arm5 -- -l 127.0.0.1:1091 -r $server_ip:$kcp_port $kcp_para
-					fi
-				fi
-			done
 		else
 			echo_date ss启动前触发:未选择负载均衡节点，不触发负载均衡启动！
 		fi
@@ -325,10 +292,7 @@ resolv_server_ip(){
 		echo_date 检测到你的SS服务器已经是IP格式：$ss_basic_server,跳过解析... 
 	fi
 }
-# create shadowsocks config file...
-creat_ss_json(){
-	# simple obfs
-	ARG_OBFS=""
+ss_arg(){
 	if [ -n "$ss_basic_ss_obfs_host" ];then
 		if [ "$ss_basic_ss_obfs" == "http" ];then
 			ARG_OBFS="--plugin obfs-local --plugin-opts obfs=http;obfs-host=$ss_basic_ss_obfs_host"
@@ -346,7 +310,10 @@ creat_ss_json(){
 			ARG_OBFS=""
 		fi
 	fi
-	
+}
+# create shadowsocks config file...
+creat_ss_json(){
+	# simple obfs	
 	if [ "$ss_basic_type" == "0" ];then
 		echo_date 创建SS配置文件到$CONFIG_FILE
 		cat > $CONFIG_FILE <<-EOF
@@ -1342,6 +1309,7 @@ apply_ss(){
 	echo_date ------------------------- 梅林固件 shadowsocks --------------------------
 	resolv_server_ip
 	# do not re generate json on router start, use old one
+	ss_arg
 	[ -z "$WAN_ACTION" ] && creat_ss_json
 	#creat_dnsmasq_basic_conf
 	load_cdn_site
