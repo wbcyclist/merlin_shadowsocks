@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# shadowsocks script for AM380 merlin firmware
+# by sadog (sadoneli@gmail.com) from koolshare.cn
+
 eval `dbus export ssconf_basic`
 
 # flush previous ping value in the table

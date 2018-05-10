@@ -1,4 +1,8 @@
 #!/bin/sh
+
+# shadowsocks script for AM380 merlin firmware
+# by sadog (sadoneli@gmail.com) from koolshare.cn
+
 eval `dbus export ss`
 source /koolshare/scripts/base.sh
 alias echo_date='echo 【$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X)】:'
@@ -41,7 +45,7 @@ start_update(){
 	
 	# update gfwlist
 	if [ "$ss_basic_gfwlist_update" == "1" ];then
-		echo_date " ------------------------------------------------------------------------"
+		echo_date " --------------------------------------------------------------------"
 		if [ ! -z "$version_gfwlist2" ];then
 			if [ "$version_gfwlist1" != "$version_gfwlist2" ];then
 				echo_date 检测到新版本gfwlist，开始更新...
@@ -70,7 +74,7 @@ start_update(){
 	
 	# update chnroute
 	if [ "$ss_basic_chnroute_update" == "1" ];then
-		echo_date " ------------------------------------------------------------------------"
+		echo_date " --------------------------------------------------------------------"
 		if [ ! -z "$version_chnroute2" ];then
 			if [ "$version_chnroute1" != "$version_chnroute2" ];then
 				echo_date 检测到新版本chnroute，开始更新...
@@ -98,7 +102,7 @@ start_update(){
 	
 	# update cdn file
 	if [ "$ss_basic_cdn_update" == "1" ];then
-		echo_date " ------------------------------------------------------------------------"
+		echo_date " --------------------------------------------------------------------"
 		if [ ! -z "$version_cdn2" ];then
 			if [ "$version_cdn1" != "$version_cdn2" ];then
 				echo_date 检测到新版本cdn名单，开始更新...
@@ -123,7 +127,7 @@ start_update(){
 	else
 		echo_date 然而你并没有勾选cdn名单更新！
 	fi
-	echo_date " ------------------------------------------------------------------------"
+	echo_date " --------------------------------------------------------------------"
 	rm -rf /tmp/gfwlist.conf1
 	rm -rf /tmp/chnroute.txt1
 	rm -rf /tmp/cdn.txt1

@@ -1,4 +1,8 @@
 #!/bin/sh
+
+# shadowsocks script for AM380 merlin firmware
+# by sadog (sadoneli@gmail.com) from koolshare.cn
+
 # 导入skipd数据
 eval `dbus export ss`
 

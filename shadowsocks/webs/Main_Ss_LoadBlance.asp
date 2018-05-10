@@ -91,50 +91,94 @@ function conf2obj(){
 function getAllConfigs() {
 	var dic = {};
 	for (var field in db_ss) {
-		names = field.split("_");
+		names = field.split("ssconf_basic_name_");
 		dic[names[names.length - 1]] = 'ok';
 	}
 	confs = {};
+	//console.log("456", dic)
 	var p = "ssconf_basic";
 	for (var field in dic) {
 		if (isNaN(field)){
 			continue;
 		}
 		var obj = {};
+		//节点名
 		if (typeof db_ss[p + "_name_" + field] == "undefined") {
 			obj["name"] = '节点' + field;
 		} else {
 			obj["name"] = db_ss[p + "_name_" + field];
 		}
-		if (typeof db_ss[p + "_mode_" + field] == "undefined") {
-			obj["mode"] = '';
+		//ping显示
+		if (typeof db_ss[p + "_ping_" + field] == "undefined") {
+			obj["ping"] = '';
+		} else if (db_ss[p + "_ping_" + field] == "failed") {
+			obj["ping"] = '<font color="#FFCC00">failed</font>';
 		} else {
-			obj["mode"] = db_ss[p + "_mode_" + field];
+			obj["ping"] = parseFloat(db_ss[p + "_ping_" + field].split(" ")[0]).toPrecision(3) + " ms / " + parseFloat(db_ss[p + "_ping_" + field].split(" ")[3]) + "%";
+		}
+
+		if (typeof db_ss[p + "_webtest_" + field] == "undefined") {
+			obj["webtest"] = '';
+		} else {
+			var time_total = parseFloat(db_ss[p + "_webtest_" + field].split(":")[0]).toFixed(2);
+			if (time_total == 0.00) {
+				obj["webtest"] = '<font color=#FFCC00">failed</font>';
+			} else {
+				obj["webtest"] = parseFloat(db_ss[p + "_webtest_" + field].split(":")[0]).toFixed(2) + " s";
+			}
+		}
+		//空值为0
+		if (typeof db_ss[p + "_use_kcp_" + field] == "undefined") {
+			obj["use_kcp"] = '0';
+		} else {
+			obj["use_kcp"] = db_ss[p + "_use_kcp_" + field];
 		}
 		if (typeof db_ss[p + "_use_lb_" + field] == "undefined") {
 			obj["use_lb"] = '0';
 		} else {
 			obj["use_lb"] = db_ss[p + "_use_lb_" + field];
 		}
-		if (typeof db_ss[p + "_weight_" + field] == "undefined") {
-			obj["weight"] = '';
+		
+		if (typeof db_ss[p + "_server_" + field] == "undefined") {
+			if(db_ss[p + "_v2ray_use_json_" + field] ==  "1"){
+				obj["server"] = "v2ray json";
+			}else{
+				obj["server"] = '';
+			}
 		} else {
-			obj["weight"] = db_ss[p + "_weight_" + field];
-		}
-		if (typeof db_ss[p + "_lbmode_" + field] == "undefined") {
-			obj["lbmode"] = '';
-		} else {
-			obj["lbmode"] = db_ss[p + "_lbmode_" + field];
+			obj["server"] = db_ss[p + "_server_" + field];
 		}
 
-		var params = ["name", "server", "port", "password", "method"];
-		for (var i = 1; i < params.length; i++) {
+		if (typeof db_ss[p + "_port_" + field] == "undefined") {
+			if(db_ss[p + "_v2ray_use_json_" + field] ==  "1"){
+				obj["port"] = "json";
+			}else{
+				obj["port"] = '';
+			}
+		} else {
+			obj["port"] = db_ss[p + "_port_" + field];
+		}
+
+		if (typeof db_ss[p + "_method_" + field] == "undefined") {
+			if(db_ss[p + "_v2ray_use_json_" + field] ==  "0"){
+				obj["method"] = db_ss[p + "_v2ray_security_" + field];
+			}else if(db_ss[p + "_v2ray_use_json_" + field] ==  "1"){
+				obj["method"] = "v2ray json";
+			}else{
+				obj["method"] = '';
+			}
+		} else {
+			obj["method"] = db_ss[p + "_method_" + field];
+		}
+
+		var params = ["password", "mode", "ss_obfs", "ss_obfs_host", "koolgame_udp", "rss_protocol", "rss_protocol_param", "rss_obfs", "rss_obfs_param", "group", "weight", "lbmode", "v2ray_uuid", "v2ray_alterid", "v2ray_security", "v2ray_network", "v2ray_headtype_tcp", "v2ray_headtype_kcp", "v2ray_network_path", "v2ray_network_host", "v2ray_network_security", "v2ray_mux_concurrency", "v2ray_json", "v2ray_use_json", "v2ray_mux_enable"];
+		for (var i = 0; i < params.length; i++) {
 			var ofield = p + "_" + params[i] + "_" + field;
 			if (typeof db_ss["ssconf_basic_mode_" + field] == "undefined") {
-				obj = null;
-				break;
+				obj[params[i]] = '';
+			}else{
+				obj[params[i]] = db_ss[ofield];
 			}
-			obj[params[i]] = db_ss[ofield];
 		}
 		if (obj != null) {
 			var node_i = parseInt(field);
@@ -145,6 +189,7 @@ function getAllConfigs() {
 			confs[field] = obj;
 		}
 	}
+	//console.log(confs)
 	return confs;
 }
 
@@ -229,6 +274,14 @@ function addTr() {
 	lb_node_nu++;
 	var ns = {};
 	var node_sel = E("ss_lb_node").value;
+	if (typeof(db_ss["ssconf_basic_v2ray_use_json_" + node_sel]) != "undefined"){
+		alert("不支持v2ray节点负载均衡！")
+		return false;
+	}
+	if (typeof(db_ss["ssconf_basic_koolgame_udp_" + node_sel]) != "undefined"){
+		alert("不支持koolgame节点负载均衡！")
+		return false;
+	}
 	ns["ssconf_basic_use_lb_" + node_sel] = 1;
 	ns["ssconf_basic_weight_" + node_sel] = E("ss_lb_weight").value;
 	ns["ssconf_basic_lbmode_" + node_sel] = E("ss_lb_mode").value;

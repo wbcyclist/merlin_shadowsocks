@@ -1,4 +1,8 @@
 #!/bin/sh
+
+# shadowsocks script for AM380 merlin firmware
+# by sadog (sadoneli@gmail.com) from koolshare.cn
+
 source /koolshare/scripts/base.sh
 eval `dbus export ssconf_basic`
 

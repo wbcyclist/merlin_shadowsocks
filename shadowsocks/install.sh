@@ -1,28 +1,23 @@
 #! /bin/sh
 
+# shadowsocks script for AM380 merlin firmware
+# by sadog (sadoneli@gmail.com) from koolshare.cn
+
 eval `dbus export ss`
 alias echo_date='echo 【$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X)】:'
 mkdir -p /koolshare/ss
+mkdir -p /tmp/ss_backup
 
 # 判断路由架构和平台
 case $(uname -m) in
-  armv7l)
-	echo_date 固件平台【koolshare merlin armv7l】符合安装要求，开始安装插件！
-    ;;
-  mips)
-  	echo_date 本插件适用于koolshare merlin armv7l固件平台，mips平台不能安装！！！
-  	echo_date 退出安装！
-    exit 0
-    ;;
-  x86_64)
-	echo_date 本插件适用于koolshare merlin armv7l固件平台，x86_64固件平台不能安装！！！
-	exit 0
-    ;;
-  *)
-  	echo_date 本插件适用于koolshare merlin armv7l固件平台，其它平台不能安装！！！
-  	echo_date 退出安装！
-    exit 0
-    ;;
+	armv7l)
+		echo_date 固件平台【koolshare merlin armv7l】符合安装要求，开始安装插件！
+	;;
+	*)
+		echo_date 本插件适用于koolshare merlin armv7l固件平台，你的平台"$(uname -m)"不能安装！！！
+		echo_date 退出安装！
+		exit 1
+	;;
 esac
 
 upgrade_ss_conf(){
@@ -86,10 +81,10 @@ upgrade_ss_conf(){
 	[ -n "`dbus get ssconf_basic_use_kcp_$node`" ] && dbus set ss_basic_koolgame_udp=`dbus get ssconf_basic_use_kcp_$node`
 }
 
-SS_VERSION_OLD=`dbus get ss_basic_version_local`
-[ -z "$SS_VERSION_OLD" ] && SS_VERSION_OLD=3.6.5
-ss_comp=`versioncmp $SS_VERSION_OLD 3.6.5`
-if [ -n "$SS_VERSION_OLD" ];then
+[ -f "/usr/bin/versioncmp" ] && {
+	SS_VERSION_OLD=`dbus get ss_basic_version_local`
+	[ -z "$SS_VERSION_OLD" ] && SS_VERSION_OLD=3.6.5
+	ss_comp=`/usr/bin/versioncmp $SS_VERSION_OLD 3.6.5`
 	if [ "$ss_comp" == "1" ];then
 		echo_date ！！！！！！！！！！！！！！！！！！！！！！！！！！!
 		echo_date 检测到SS版本号为 $SS_VERSION_OLD !
@@ -99,15 +94,18 @@ if [ -n "$SS_VERSION_OLD" ];then
 		echo_date ！！！！！！！！！！！！！！！！！！！！！！！！！！!
 		upgrade_ss_conf
 	fi
-fi
+}
 
-# 先关闭ss
 if [ "$ss_basic_enable" == "1" ];then
 	echo_date 先关闭ss，保证文件更新成功!
 	sh /koolshare/ss/ssconfig.sh stop
 fi
 
-#升级前先删除无关文件
+if [ -n "`ls /koolshare/ss/postscripts/P*.sh 2>/dev/null`" ];then
+	echo_date 备份触发脚本!
+	find /koolshare/ss/postscripts -name "P*.sh" | xargs -i mv {} -f /tmp/ss_backup
+fi
+
 echo_date 清理旧文件
 rm -rf /koolshare/ss/*
 rm -rf /koolshare/scripts/ss_*
@@ -131,6 +129,10 @@ rm -rf /koolshare/bin/client_linux_arm5
 rm -rf /koolshare/bin/chinadns
 rm -rf /koolshare/bin/chinadns1
 rm -rf /koolshare/bin/resolveip
+rm -rf /koolshare/bin/udp2raw
+rm -rf /koolshare/bin/speeder*
+rm -rf /koolshare/bin/v2ray
+rm -rf /koolshare/bin/v2ctl
 rm -rf /koolshare/res/layer
 rm -rf /koolshare/res/shadowsocks.css
 rm -rf /koolshare/res/icon-shadowsocks.png
@@ -147,7 +149,8 @@ find /koolshare/init.d/ -name "*socks5.sh" | xargs rm -rf
 echo_date 开始复制文件！
 cd /tmp
 
-echo_date 复制相关二进制文件！
+echo_date 复制相关二进制文件！此步时间可能较长！
+echo_date 如果长时间没有日志刷新，请等待2分钟后进入插件看是否安装成功..。
 cp -rf /tmp/shadowsocks/bin/* /koolshare/bin/
 chmod 755 /koolshare/bin/*
 
@@ -171,6 +174,12 @@ chmod 755 /koolshare/ss/*
 chmod 755 /koolshare/scripts/ss*
 chmod 755 /koolshare/bin/*
 
+if [ -n "`ls /tmp/ss_backup/P*.sh 2>/dev/null`" ];then
+	echo_date 恢复触发脚本!
+	mkdir -p /koolshare/ss/postscripts
+	find /tmp/ss_backup -name "P*.sh" | xargs -i mv {} -f /koolshare/ss/postscripts
+fi
+
 echo_date 创建一些二进制文件的软链接！
 [ ! -L "/koolshare/bin/rss-tunnel" ] && ln -sf /koolshare/bin/rss-local /koolshare/bin/rss-tunnel
 [ ! -L "/koolshare/bin/base64" ] && ln -sf /koolshare/bin/koolbox /koolshare/bin/base64
@@ -179,7 +188,6 @@ echo_date 创建一些二进制文件的软链接！
 [ ! -L "/koolshare/bin/base64_decode" ] && ln -s /koolshare/bin/base64_encode /koolshare/bin/base64_decode
 [ ! -L "/koolshare/init.d/S99socks5.sh" ] && ln -sf /koolshare/scripts/ss_socks5.sh /koolshare/init.d/S99socks5.sh
 
-# 设置一些默认值
 echo_date 设置一些默认值
 [ -z "$ss_dns_china" ] && dbus set ss_dns_china=11
 [ -z "$ss_dns_foreign" ] && dbus set ss_dns_foreign=1
@@ -187,16 +195,17 @@ echo_date 设置一些默认值
 [ -z "$ss_acl_default_mode" ] && [ -n "$ss_basic_mode" ] && dbus set ss_acl_default_mode="$ss_basic_mode"
 [ -z "$ss_acl_default_mode" ] && [ -z "$ss_basic_mode" ] && dbus set ss_acl_default_mode=1
 [ -z "$ss_acl_default_port" ] && dbus set ss_acl_default_port=all
+[ "$ss_basic_v2ray_network" == "ws_hd" ] && dbus set ss_basic_v2ray_network="ws"
 
 # 离线安装时设置软件中心内储存的版本号和连接
 CUR_VERSION=`cat /koolshare/ss/version`
-dbus set softcenter_module_shadowsocks_install=1
+dbus set ss_basic_version_local="$CUR_VERSION"
+dbus set softcenter_module_shadowsocks_install="4"
 dbus set softcenter_module_shadowsocks_version="$CUR_VERSION"
 dbus set softcenter_module_shadowsocks_title="科学上网"
 dbus set softcenter_module_shadowsocks_description="科学上网"
 dbus set softcenter_module_shadowsocks_home_url=Main_Ss_Content.asp
 
-sleep 2
 echo_date 一点点清理工作...
 rm -rf /tmp/shadowsocks* >/dev/null 2>&1
 dbus set ss_basic_install_status="0"
@@ -205,6 +214,6 @@ echo_date 插件安装成功，你为什么这么屌？！
 if [ "$ss_basic_enable" == "1" ];then
 	echo_date 重启ss！
 	dbus set ss_basic_action=1
-	. /koolshare/ss/ssconfig.sh restart
+	sh /koolshare/ss/ssconfig.sh restart
 fi
 echo_date 更新完毕，请等待网页自动刷新！

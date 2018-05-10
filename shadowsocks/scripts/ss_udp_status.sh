@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# shadowsocks script for AM380 merlin firmware
+# by sadog (sadoneli@gmail.com) from koolshare.cn
+
 eval `dbus export ss`
 source /koolshare/scripts/base.sh
 game_on=`dbus list ss_acl_mode|cut -d "=" -f 2 | grep 3`

@@ -1,7 +1,10 @@
 #!/bin/sh
 eval `dbus export ss`
 
-# 此脚本用于升级.6.4版本及其以下的ss插件储存数据
+# shadowsocks script for AM380 merlin firmware
+# by sadog (sadoneli@gmail.com) from koolshare.cn
+
+# 此脚本用于升级3.6.4版本及其以下的ss插件储存数据
 
 nodes=`dbus list ssc|grep port|cut -d "=" -f1|cut -d "_" -f4|sort -n`
 for node in $nodes
@@ -27,6 +30,7 @@ do
 			dbus remove ssconf_basic_rss_obfs_$node
 			dbus remove ssconf_basic_rss_obfs_param_$node
 			dbus remove ssconf_basic_koolgame_udp_$node
+			[ -z "`dbus get ssconf_basic_ss_obfs_$node`" ] && dbus set ssconf_basic_ss_obfs_$node="0"
 		fi
 	fi
 	dbus remove ssconf_basic_use_rss_$node
