@@ -1,5 +1,10 @@
 Koolshare Asuswrt-Merlin shadowsocks Changelog
 ===========================================
+3.9.9
+   - update 添加jitterentropy-rngd，以提供足够的熵来快速生成高质量的随机数，保证ss-libev启动；
+   - fix 修复带订阅对某些机场不支持的情况；
+   - fix 修复订阅ssr节点协议带compatible时，订阅到的协议值为空的问题；
+   
 3.9.7 - 3.9.8
    - update	更新ssrr二进制为最新编译，版本2.5.3；
    - update	更新haproxy到1.8.8；

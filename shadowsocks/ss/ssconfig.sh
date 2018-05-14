@@ -212,6 +212,9 @@ kill_process(){
 		echo_date 关闭ud2raw进程...
 		killall udp2raw >/dev/null 2>&1
 	fi
+	if [ -n "`pidof jitterentropy-rngd`" ];then
+		killall jitterentropy-rngd >/dev/null 2>&1
+	fi
 }
 
 # ================================= ss prestart ===========================
@@ -683,6 +686,10 @@ create_dnsmasq_conf(){
 
 	#echo_date 创建dnsmasq.postconf软连接到/jffs/scripts/文件夹.
 	[ ! -L "/jffs/scripts/dnsmasq.postconf" ] && ln -sf /koolshare/ss/rules/dnsmasq.postconf /jffs/scripts/dnsmasq.postconf
+}
+
+start_jitterentropy(){
+	jitterentropy-rngd >/dev/null 2>&1
 }
 
 auto_start(){
@@ -1858,6 +1865,7 @@ apply_ss(){
 	ss_arg
 	creat_ipset
 	create_dnsmasq_conf
+	start_jitterentropy
 	# do not re generate json on router start, use old one
 	[ -z "$WAN_ACTION" ] && [ "$ss_basic_type" != "3" ] && creat_ss_json
 	[ -z "$WAN_ACTION" ] && [ "$ss_basic_type" = "3" ] && creat_v2ray_json

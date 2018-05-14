@@ -158,9 +158,9 @@ decode_url_link(){
 	if [ "$mod4" -gt "0" ]; then
 		var="===="
 		newlink=${link}${var:$mod4}
-		echo -n "$newlink" | sed 's/-/+/g; s/_/\//g' | base64 -d
+		echo -n "$newlink" | sed 's/-/+/g; s/_/\//g' | base64 -d 2>/dev/null
 	else
-		echo -n "$link" | sed 's/-/+/g; s/_/\//g' | base64 -d
+		echo -n "$link" | sed 's/-/+/g; s/_/\//g' | base64 -d 2>/dev/null
 	fi
 }
 
@@ -210,7 +210,7 @@ get_remote_config(){
 	[ -n "$obfsparam_temp" ] && obfsparam=$(decode_url_link $obfsparam_temp 0) || obfsparam=''
 	
 	protoparam_temp=$(echo "$decode_link" |awk -F':' '{print $6}'|grep -Eo "protoparam.+"|sed 's/protoparam=//g'|awk -F'&' '{print $1}')
-	[ -n "$protoparam_temp" ] && protoparam=$(decode_url_link $protoparam_temp 0) || protoparam=''
+	[ -n "$protoparam_temp" ] && protoparam=$(decode_url_link $protoparam_temp 0|sed 's/_compatible//g') || protoparam=''
 	
 	remarks_temp=$(echo "$decode_link" |awk -F':' '{print $6}'|grep -Eo "remarks.+"|sed 's/remarks=//g'|awk -F'&' '{print $1}')
 	[ -n "$remarks_temp" ] && remarks=$(decode_url_link $remarks_temp 0) || remarks='AutoSuB'
@@ -409,7 +409,9 @@ get_oneline_rule_now(){
 		curl --connect-timeout 8 -s -L $ssr_subscribe_link > /tmp/ssr_subscribe_file.txt
 	fi
 
+	#虽然下为0但是还是要检测下是否下载到正确的内容
 	if [ "$?" == "0" ];then
+		#下载为空...
 		if [ -z "`cat /tmp/ssr_subscribe_file.txt`" ];then
 			echo_date 下载为空...
 			return 3
@@ -445,9 +447,9 @@ get_oneline_rule_now(){
 			NODE_NU=`cat /tmp/ssr_subscribe_file_temp1.txt | grep -c "ssr://"`
 			echo_date 检测到ssr节点格式，共计$NODE_NU个节点...
 			#判断格式
-			maxnum=$(decode_url_link `cat /tmp/ssr_subscribe_file.txt` 0 | grep "MAX=" |awk -F"=" '{print $2}')
+			maxnum=$(decode_url_link `cat /tmp/ssr_subscribe_file.txt` 0 | grep "MAX=" | awk -F"=" '{print $2}' | grep -Eo "[0-9]+")
 			if [ -n "$maxnum" ]; then
-				urllinks=$(decode_url_link `cat /tmp/ssr_subscribe_file.txt` 0 | sed '/MAX=/d' | shuf -n${maxnum} | sed 's/ssr:\/\///g')
+				urllinks=$(decode_url_link `cat /tmp/ssr_subscribe_file.txt` 0 | sed '/MAX=/d' | shuf -n $maxnum | sed 's/ssr:\/\///g')
 			else
 				urllinks=$(decode_url_link `cat /tmp/ssr_subscribe_file.txt` 0 | sed 's/ssr:\/\///g')
 			fi
@@ -464,21 +466,19 @@ get_oneline_rule_now(){
 			remove_node_gap
 			# 储存对应订阅链接的group信息
 			dbus set ss_online_group_$z=$group
-			HIDE_DETIAL=0
-		else
-			echo_date 该订阅链接不包含任何节点信息！请检查你的服务商是否更换了订阅链接！
-			HIDE_DETIAL=1
-		fi
-		NO_DEL=0
-		sleep 1
-		echo $group >> /tmp/group_info.txt
-		if [ "$HIDE_DETIAL" == "0" ];then
+			#尝试删除不再订阅的节点
+			NO_DEL=0
+			sleep 1
+			echo $group >> /tmp/group_info.txt
 			USER_ADD=$(($(dbus list ssconf_basic_|grep _name_|wc -l) - $(dbus list ssconf_basic_|grep _group_|wc -l))) || 0
 			ONLINE_GET=$(dbus list ssconf_basic_|grep _group_|wc -l) || 0
 			echo_date "本次更新订阅来源 【$group】， 新增节点 $addnum 个，修改 $updatenum 个，删除 $delnum 个；"
 			echo_date "现共有自添加SSR节点：$USER_ADD 个。"
 			echo_date "现共有订阅SSR节点：$ONLINE_GET 个。"
 			echo_date "在线订阅列表更新完成!"
+		else
+			echo_date 该订阅链接不包含任何节点信息！请检查你的服务商是否更换了订阅链接！
+			NO_DEL=1
 		fi
 	else
 		return 1

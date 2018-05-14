@@ -5,7 +5,7 @@
 
 eval `dbus export ss`
 alias echo_date='echo 【$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X)】:'
-main_url="https://raw.githubusercontent.com/wbcyclist/merlin_shadowsocks/master/shadowsocks"
+main_url="https://raw.githubusercontent.com/wbcyclist/merlin_shadowsocks/master"
 backup_url="http://koolshare.ngrok.wang:5000/shadowsocks"
 
 install_ss(){
