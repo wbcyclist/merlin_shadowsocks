@@ -350,7 +350,7 @@ creat_ss_json(){
 	
 	if [ "$ss_basic_udp2raw_boost_enable" == "1" ] || [ "$ss_basic_udp_boost_enable" == "1" ];then
 		if [ "$ss_basic_udp_upstream_mtu" == "1" ] && [ "$ss_basic_udp_node" == "$ssconf_basic_node" ];then
-			echo_date 设定UDP为 $ss_basic_udp_upstream_mtu_value
+			echo_date 设定MTU为 $ss_basic_udp_upstream_mtu_value
 			cat /koolshare/ss/ss.json | jq --argjson MTU $ss_basic_udp_upstream_mtu_value '. + {MTU: $MTU}' > /koolshare/ss/ss_tmp.json
 			mv /koolshare/ss/ss_tmp.json /koolshare/ss/ss.json
 		fi
@@ -540,6 +540,16 @@ start_dns(){
 }
 #--------------------------------------------------------------------------------------
 
+detect_domain(){
+	domain1=`echo $1|grep -E "^https://|^http://"`
+	domain2=`echo $1|grep -E "\."`
+	if [ -n "$domain1" ] || [ -z "$domain2" ];then
+		return 1
+	else
+		return 0
+	fi
+}
+
 create_dnsmasq_conf(){
 	if [ "$ss_dns_china" == "1" ];then
 		if [ -n "$IFIP_DNS1" ];then
@@ -633,9 +643,14 @@ create_dnsmasq_conf(){
 		echo_date 应用域名白名单
 		echo "#for white_domain" >> /tmp/wblist.conf
 		for wan_white_domain in $wanwhitedomain
-		do 
-			echo "$wan_white_domain" | sed "s/^/server=&\/./g" | sed "s/$/\/$CDN#53/g" >> /tmp/wblist.conf
-			echo "$wan_white_domain" | sed "s/^/ipset=&\/./g" | sed "s/$/\/white_list/g" >> /tmp/wblist.conf
+		do
+			detect_domain "$wan_white_domain"
+			if [ "$?" == "0" ];then
+				echo "$wan_white_domain" | sed "s/^/server=&\/./g" | sed "s/$/\/$CDN#53/g" >> /tmp/wblist.conf
+				echo "$wan_white_domain" | sed "s/^/ipset=&\/./g" | sed "s/$/\/white_list/g" >> /tmp/wblist.conf
+			else
+				echo_date ！！检测到域名白名单内的【"$wan_white_domain"】不是域名格式！！此条将不会添加！！
+			fi
 		done
 	fi
 	
@@ -653,9 +668,14 @@ create_dnsmasq_conf(){
 		echo_date 应用域名黑名单
 		echo "#for black_domain" >> /tmp/wblist.conf
 		for wan_black_domain in $wanblackdomain
-		do 
-			echo "$wan_black_domain" | sed "s/^/server=&\/./g" | sed "s/$/\/127.0.0.1#7913/g" >> /tmp/wblist.conf
-			echo "$wan_black_domain" | sed "s/^/ipset=&\/./g" | sed "s/$/\/black_list/g" >> /tmp/wblist.conf
+		do
+			detect_domain "$wan_black_domain"
+			if [ "$?" == "0" ];then
+				echo "$wan_black_domain" | sed "s/^/server=&\/./g" | sed "s/$/\/127.0.0.1#7913/g" >> /tmp/wblist.conf
+				echo "$wan_black_domain" | sed "s/^/ipset=&\/./g" | sed "s/$/\/black_list/g" >> /tmp/wblist.conf
+			else
+				echo_date ！！检测到域名黑名单内的【"$wan_black_domain"】不是域名格式！！此条将不会添加！！
+			fi
 		done
 	fi
 
@@ -1406,7 +1426,13 @@ flush_nat(){
 	echo_date 清除iptables规则和ipset...
 	chromecast_nu=`iptables -t nat -L PREROUTING -v -n --line-numbers|grep "dpt:53"|awk '{print $1}'`
 	# flush rules and set if any
-	iptables -t nat -D PREROUTING -p tcp -j SHADOWSOCKS >/dev/null 2>&1
+	nat_indexs=`iptables -nvL PREROUTING -t nat |sed 1,2d | sed -n '/SHADOWSOCKS/='|sort -r`
+	for nat_index in $nat_indexs
+	do
+		iptables -t nat -D PREROUTING $nat_index >/dev/null 2>&1
+	done
+	#iptables -t nat -D PREROUTING -p tcp -j SHADOWSOCKS >/dev/null 2>&1
+	
 	iptables -t nat -F SHADOWSOCKS > /dev/null 2>&1 && iptables -t nat -X SHADOWSOCKS > /dev/null 2>&1
 	iptables -t nat -F SHADOWSOCKS_EXT > /dev/null 2>&1
 	iptables -t nat -F SHADOWSOCKS_GFW > /dev/null 2>&1 && iptables -t nat -X SHADOWSOCKS_GFW > /dev/null 2>&1
@@ -1414,7 +1440,14 @@ flush_nat(){
 	iptables -t nat -F SHADOWSOCKS_GAM > /dev/null 2>&1 && iptables -t nat -X SHADOWSOCKS_GAM > /dev/null 2>&1
 	iptables -t nat -F SHADOWSOCKS_GLO > /dev/null 2>&1 && iptables -t nat -X SHADOWSOCKS_GLO > /dev/null 2>&1
 	iptables -t nat -F SHADOWSOCKS_HOM > /dev/null 2>&1 && iptables -t nat -X SHADOWSOCKS_HOM > /dev/null 2>&1
-	iptables -t mangle -D PREROUTING -p udp -j SHADOWSOCKS >/dev/null 2>&1
+
+	mangle_indexs=`iptables -nvL PREROUTING -t mangle |sed 1,2d | sed -n '/SHADOWSOCKS/='|sort -r`
+	for mangle_index in $mangle_indexs
+	do
+		iptables -t mangle -D PREROUTING $mangle_index >/dev/null 2>&1
+	done
+	#iptables -t mangle -D PREROUTING -p udp -j SHADOWSOCKS >/dev/null 2>&1
+	
 	iptables -t mangle -F SHADOWSOCKS >/dev/null 2>&1 && iptables -t mangle -X SHADOWSOCKS >/dev/null 2>&1
 	iptables -t mangle -F SHADOWSOCKS_GAM > /dev/null 2>&1 && iptables -t mangle -X SHADOWSOCKS_GAM > /dev/null 2>&1
 	iptables -t nat -D OUTPUT -p tcp -m set --match-set router dst -j REDIRECT --to-ports 3333 >/dev/null 2>&1
@@ -1688,7 +1721,6 @@ apply_nat_rules(){
 	[ "$KP_NU" == "" ] && KP_NU=0
 	INSET_NU=`expr "$KP_NU" + 1`
 	iptables -t nat -I PREROUTING "$INSET_NU" -p tcp -j SHADOWSOCKS
-	#iptables -t nat -I PREROUTING 1 -p tcp -j SHADOWSOCKS
 	[ "$mangle" == "1" ] && iptables -t mangle -A PREROUTING -p udp -j SHADOWSOCKS
 	# QOS开启的情况下
 	QOSO=`iptables -t mangle -S | grep -o QOSO | wc -l`
@@ -1833,7 +1865,7 @@ detect(){
 		nvram commit
 	fi
 	if [ -n "`nvram get dhcp_dns2_x`" ];then
-		nvram unset dhcp_dns1_x
+		nvram unset dhcp_dns2_x
 		nvram commit
 	fi
 }
@@ -1863,9 +1895,12 @@ apply_ss(){
 	detect
 	resolv_server_ip
 	ss_arg
+	load_module
 	creat_ipset
 	create_dnsmasq_conf
 	start_jitterentropy
+	sleep 1
+	#get_status
 	# do not re generate json on router start, use old one
 	[ -z "$WAN_ACTION" ] && [ "$ss_basic_type" != "3" ] && creat_ss_json
 	[ -z "$WAN_ACTION" ] && [ "$ss_basic_type" = "3" ] && creat_v2ray_json
@@ -1874,7 +1909,6 @@ apply_ss(){
 	[ "$ss_basic_type" == "3" ] && start_v2ray
 	[ "$ss_basic_type" != "2" ] && start_kcp
 	[ "$ss_basic_type" != "2" ] && start_dns
-	load_module
 	#===load nat start===
 	load_nat
 	#===load nat end===
@@ -1927,7 +1961,6 @@ start)
 		set_ulimit >> "$LOG_FILE"
 		apply_ss >> "$LOG_FILE"
 		write_numbers >> "$LOG_FILE"
-		#[ ! -f "/tmp/shadowsocks.nat_lock" ] && touch /tmp/shadowsocks.nat_lock
 	else
 		logger "[软件中心]: 科学上网插件未开启，不启动！"
 	fi
@@ -1955,9 +1988,12 @@ restart)
 	echo_date "Across the Great Wall we can reach every corner in the world!"
 	echo_date
 	echo_date ======================= 梅林固件 - 【科学上网】 ========================
-	# creat nat locker
-	# [ ! -f "/tmp/shadowsocks.nat_lock" ] && touch /tmp/shadowsocks.nat_lock
 	#get_status >> /tmp/ss_start.txt
+	unset_lock
+	;;
+flush_nat)
+	set_lock
+	flush_nat
 	unset_lock
 	;;
 *)

@@ -307,6 +307,11 @@ function save(s) {
 		}
 		dbus["ss_basic_v2ray_network_host"] = vmess_node.host;
 		dbus["ss_basic_v2ray_network_path"] = vmess_node.path;
+		if(vmess_node.tls == "tls"){
+			dbus["ss_basic_v2ray_network_security"] = "tls";
+		}else{
+			dbus["ss_basic_v2ray_network_security"] = "none";
+		}		
 		dbus["ss_basic_v2ray_mux_enable"] = 1;
 		dbus["ss_basic_v2ray_mux_concurrency"] = 8;
 		dbus["ss_basic_v2ray_use_json"] = 0;
@@ -345,6 +350,11 @@ function save(s) {
 		}
 		dbus["ssconf_basic_v2ray_network_host_" + node_sel] = vmess_node.host;
 		dbus["ssconf_basic_v2ray_network_path_" + node_sel] = vmess_node.path;
+		if(vmess_node.tls == "tls"){
+			dbus["ssconf_basic_v2ray_network_security_" + node_sel] = "tls";
+		}else{
+			dbus["ssconf_basic_v2ray_network_security_" + node_sel] = "none";
+		}	
 		dbus["ssconf_basic_v2ray_mux_enable_" + node_sel] = 1;
 		dbus["ssconf_basic_v2ray_mux_concurrency_" + node_sel] = 8;
 		dbus["ssconf_basic_v2ray_use_json_" + node_sel] = 0;
@@ -1172,6 +1182,11 @@ function add_ss_node_conf(flag) { //点击添加按钮动作
 				}
 				ns["ssconf_basic_v2ray_network_host_" + node_global_max] = vmess_node.host;
 				ns["ssconf_basic_v2ray_network_path_" + node_global_max] = vmess_node.path;
+				if(vmess_node.tls == "tls"){
+					ns["ssconf_basic_v2ray_network_security_" + node_global_max] = "tls";
+				}else{
+					ns["ssconf_basic_v2ray_network_security_" + node_global_max] = "none";
+				}	
 				ns["ssconf_basic_v2ray_mux_enable_" + node_global_max] = 1;
 				ns["ssconf_basic_v2ray_mux_concurrency_" + node_global_max] = 8;
 				ns["ssconf_basic_v2ray_use_json_" + node_global_max] = 0;
@@ -1577,6 +1592,11 @@ function edit_ss_node_conf(flag) { //编辑节点功能，数据重写
 				}
 				ns["ssconf_basic_v2ray_network_host_" + myid] = vmess_node.host;
 				ns["ssconf_basic_v2ray_network_path_" + myid] = vmess_node.path;
+				if(vmess_node.tls == "tls"){
+					ns["ssconf_basic_v2ray_network_security_" + myid] = "tls";
+				}else{
+					ns["ssconf_basic_v2ray_network_security_" + myid] = "none";
+				}
 				ns["ssconf_basic_v2ray_mux_enable_" + myid] = 1;
 				ns["ssconf_basic_v2ray_mux_concurrency_" + myid] = 8;
 				ns["ssconf_basic_v2ray_use_json_" + myid] = 0;

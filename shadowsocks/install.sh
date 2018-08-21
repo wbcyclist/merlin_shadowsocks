@@ -144,6 +144,7 @@ rm -rf /koolshare/res/game.png
 rm -rf /koolshare/res/shadowsocks.css
 rm -rf /koolshare/res/gameV2.png
 rm -rf /koolshare/res/ss_proc_status.htm
+rm -rf /koolshare/init.d/S89Socks5.sh
 find /koolshare/init.d/ -name "*socks5.sh" | xargs rm -rf
 
 echo_date 开始复制文件！
@@ -205,6 +206,10 @@ dbus set softcenter_module_shadowsocks_version="$CUR_VERSION"
 dbus set softcenter_module_shadowsocks_title="科学上网"
 dbus set softcenter_module_shadowsocks_description="科学上网"
 dbus set softcenter_module_shadowsocks_home_url=Main_Ss_Content.asp
+
+# v2ray 版本号
+dbus set ss_basic_v2ray_version="v3.35"
+dbus set ss_basic_v2ray_date="20180809"
 
 echo_date 一点点清理工作...
 rm -rf /tmp/shadowsocks* >/dev/null 2>&1
