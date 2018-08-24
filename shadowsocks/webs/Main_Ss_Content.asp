@@ -262,7 +262,7 @@ function save(s) {
 	dbus["action_mode"] = " Refresh ";
 	dbus["current_page"] = "Main_Ss_Content.asp";
 	//key define
-	var params_input = ["ssconf_basic_node", "ss_basic_mode", "ss_basic_server", "ss_basic_port", "ss_basic_method", "ss_basic_koolgame_udp", "ss_basic_ss_obfs", "ss_basic_ss_obfs_host", "ss_basic_rss_protocol", "ss_basic_rss_protocol_param", "ss_basic_rss_obfs", "ss_basic_rss_obfs_param", "ssconf_basic_ping_node", "ssconf_basic_ping_method", "ssconf_basic_test_node", "ssconf_basic_test_domain", "ss_dns_china", "ss_dns_china_user", "ss_foreign_dns", "ss_dns2socks_user", "ss_chinadns_user", "ss_chinadns1_user",  "ss_sstunnel_user", "ss_game2_dns_foreign", "ss_game2_dns2ss_user", "$ss_basic_kcp_lserver", "ss_basic_kcp_lport", "ss_basic_kcp_server", "ss_basic_kcp_port", "ss_basic_kcp_parameter", "ss_basic_rule_update", "ss_basic_rule_update_time", "ssr_subscribe_mode", "ssr_subscribe_obfspara", "ssr_subscribe_obfspara_val", "ss_basic_online_links_goss", "ss_basic_node_update", "ss_basic_node_update_day", "ss_basic_node_update_hr", "ss_base64_links", "ss_basic_refreshrate", "ss_basic_sleep", "ss_acl_default_port", "ss_online_action", "ss_acl_default_mode", "ss_basic_kcp_method", "ss_basic_kcp_password", "ss_basic_kcp_mode", "ss_basic_kcp_encrypt", "ss_basic_kcp_mtu", "ss_basic_kcp_sndwnd", "ss_basic_kcp_rcvwnd", "ss_basic_kcp_conn", "ss_basic_kcp_extra", "ss_basic_udp_software", "ss_basic_udp_node", "ss_basic_udpv1_lserver", "ss_basic_udpv1_lport", "ss_basic_udpv1_rserver", "ss_basic_udpv1_rport", "ss_basic_udpv1_password", "ss_basic_udpv1_mode", "ss_basic_udpv1_duplicate_nu", "ss_basic_udpv1_duplicate_time", "ss_basic_udpv1_jitter", "ss_basic_udpv1_report", "ss_basic_udpv1_drop", "ss_basic_udpv2_lserver", "ss_basic_udpv2_lport", "ss_basic_udpv2_rserver", "ss_basic_udpv2_rport", "ss_basic_udpv2_password", "ss_basic_udpv2_fec", "ss_basic_udpv2_timeout", "ss_basic_udpv2_mode", "ss_basic_udpv2_report", "ss_basic_udpv2_mtu", "ss_basic_udpv2_jitter", "ss_basic_udpv2_interval", "ss_basic_udpv2_drop", "ss_basic_udpv2_other", "ss_basic_udp2raw_lserver", "ss_basic_udp2raw_lport", "ss_basic_udp2raw_rserver", "ss_basic_udp2raw_rport", "ss_basic_udp2raw_password", "ss_basic_udp2raw_rawmode", "ss_basic_udp2raw_ciphermode", "ss_basic_udp2raw_authmode", "ss_basic_udp2raw_lowerlevel", "ss_basic_udp2raw_other", "ss_basic_udp_upstream_mtu", "ss_basic_udp_upstream_mtu_value", "ss_basic_v2ray_uuid", "ss_basic_v2ray_alterid", "ss_basic_v2ray_security", "ss_basic_v2ray_network", "ss_basic_v2ray_headtype_tcp", "ss_basic_v2ray_headtype_kcp", "ss_basic_v2ray_network_path", "ss_basic_v2ray_network_host", "ss_basic_v2ray_network_security", "ss_basic_v2ray_mux_concurrency"];
+	var params_input = ["ssconf_basic_node", "ss_basic_mode", "ss_basic_server", "ss_basic_port", "ss_basic_method", "ss_basic_koolgame_udp", "ss_basic_ss_obfs", "ss_basic_ss_obfs_host", "ss_basic_rss_protocol", "ss_basic_rss_protocol_param", "ss_basic_rss_obfs", "ss_basic_rss_obfs_param", "ssconf_basic_ping_node", "ssconf_basic_ping_method", "ssconf_basic_test_node", "ssconf_basic_test_domain", "ss_dns_china", "ss_dns_china_user", "ss_foreign_dns", "ss_dns2socks_user", "ss_chinadns_user", "ss_chinadns1_user",  "ss_sstunnel_user", "ss_game2_dns_foreign", "ss_game2_dns2ss_user", "$ss_basic_kcp_lserver", "ss_basic_kcp_lport", "ss_basic_kcp_server", "ss_basic_kcp_port", "ss_basic_kcp_parameter", "ss_basic_rule_update", "ss_basic_rule_update_time", "ssr_subscribe_mode", "ssr_subscribe_obfspara", "ssr_subscribe_obfspara_val", "ss_basic_online_links_goss", "ss_basic_node_update", "ss_basic_node_update_day", "ss_basic_node_update_hr", "ss_base64_links", "ss_basic_refreshrate", "ss_basic_sleep", "ss_acl_default_port", "ss_online_action", "ss_acl_default_mode", "ss_basic_kcp_method", "ss_basic_kcp_password", "ss_basic_kcp_mode", "ss_basic_kcp_encrypt", "ss_basic_kcp_mtu", "ss_basic_kcp_sndwnd", "ss_basic_kcp_rcvwnd", "ss_basic_kcp_conn", "ss_basic_kcp_extra", "ss_basic_udp_software", "ss_basic_udp_node", "ss_basic_udpv1_lserver", "ss_basic_udpv1_lport", "ss_basic_udpv1_rserver", "ss_basic_udpv1_rport", "ss_basic_udpv1_password", "ss_basic_udpv1_mode", "ss_basic_udpv1_duplicate_nu", "ss_basic_udpv1_duplicate_time", "ss_basic_udpv1_jitter", "ss_basic_udpv1_report", "ss_basic_udpv1_drop", "ss_basic_udpv2_lserver", "ss_basic_udpv2_lport", "ss_basic_udpv2_rserver", "ss_basic_udpv2_rport", "ss_basic_udpv2_password", "ss_basic_udpv2_fec", "ss_basic_udpv2_timeout", "ss_basic_udpv2_mode", "ss_basic_udpv2_report", "ss_basic_udpv2_mtu", "ss_basic_udpv2_jitter", "ss_basic_udpv2_interval", "ss_basic_udpv2_drop", "ss_basic_udpv2_other", "ss_basic_udp2raw_lserver", "ss_basic_udp2raw_lport", "ss_basic_udp2raw_rserver", "ss_basic_udp2raw_rport", "ss_basic_udp2raw_password", "ss_basic_udp2raw_rawmode", "ss_basic_udp2raw_ciphermode", "ss_basic_udp2raw_authmode", "ss_basic_udp2raw_lowerlevel", "ss_basic_udp2raw_other", "ss_basic_udp_upstream_mtu", "ss_basic_udp_upstream_mtu_value", "ss_basic_v2ray_uuid", "ss_basic_v2ray_alterid", "ss_basic_v2ray_security", "ss_basic_v2ray_network", "ss_basic_v2ray_headtype_tcp", "ss_basic_v2ray_headtype_kcp", "ss_basic_v2ray_network_path", "ss_basic_v2ray_network_host", "ss_basic_v2ray_network_security", "ss_basic_v2ray_mux_concurrency", "ss_reboot_check", "ss_basic_week", "ss_basic_day", "ss_basic_inter_min", "ss_basic_inter_hour", "ss_basic_inter_day", "ss_basic_inter_pre", "ss_basic_time_hour", "ss_basic_time_min", "ss_basic_tri_reboot_time", "ss_basic_tri_reboot_policy"];
 	var params_check = ["ss_basic_enable", "ss_basic_use_kcp", "ss_basic_gfwlist_update", "ss_basic_chnroute_update", "ss_basic_cdn_update", "ss_basic_kcp_nocomp", "ss_basic_udp_boost_enable", "ss_basic_udpv1_disable_filter", "ss_basic_udpv2_disableobscure", "ss_basic_udp2raw_boost_enable", "ss_basic_udp2raw_a", "ss_basic_udp2raw_keeprule", "ss_basic_v2ray_use_json", "ss_basic_v2ray_mux_enable"];
 	var params_base64 = ["ss_basic_password", "ss_dnsmasq", "ss_wan_white_ip", "ss_wan_white_domain", "ss_wan_black_ip", "ss_wan_black_domain", "ss_online_links"];
 	// collect data from input
@@ -287,6 +287,7 @@ function save(s) {
 				dbus[params_base64[i]] = "";
 			}
 			dbus["ss_basic_password"] = Base64.encode(E("ss_basic_password").value);
+			dbus["ss_basic_custom"] = Base64.encode(E("ss_basic_custom").value);
 		}
 	}
 	// for v2ray json, we need to process first: parse vmess:// format, encode json format
@@ -449,7 +450,7 @@ function push_data(obj) {
 }
 
 function decode_show() {
-	var temp_ss = ["ss_dnsmasq", "ss_wan_white_ip", "ss_wan_white_domain", "ss_wan_black_ip", "ss_wan_black_domain", "ss_online_links"];
+	var temp_ss = ["ss_dnsmasq", "ss_wan_white_ip", "ss_wan_white_domain", "ss_wan_black_ip", "ss_wan_black_domain", "ss_online_links", "ss_basic_custom"];
 	for (var i = 0; i < temp_ss.length; i++) {
 		temp_str = E(temp_ss[i]).value;
 		E(temp_ss[i]).value = Base64.decode(temp_str);
@@ -662,6 +663,76 @@ function verifyFields(r) {
 		E("UDPspeederV2_table").style.display = "";
 		E("UDP2raw_table").style.display = "none";
 	}
+
+	__ss_reboot_check=db_ss["ss_reboot_check"];
+	if (__ss_reboot_check == "0") {
+		document.getElementById('_ss_basic_day_pre').style.display="none";
+		document.getElementById('_ss_basic_week_pre').style.display="none";
+		document.getElementById('_ss_basic_time_pre').style.display="none";
+		document.getElementById('_ss_basic_inter_pre').style.display="none";
+		document.getElementById('_ss_basic_custom_pre').style.display="none";
+		document.getElementById('_ss_basic_send_text').style.display="none";
+	} else if(__ss_reboot_check	== "1")	{
+		document.getElementById('_ss_basic_week_pre').style.display="none";
+		document.getElementById('_ss_basic_day_pre').style.display="none";
+		document.getElementById('_ss_basic_time_pre').style.display="inline";
+		document.getElementById('_ss_basic_inter_pre').style.display="none";
+		document.getElementById('_ss_basic_custom_pre').style.display="none";
+		document.getElementById('_ss_basic_send_text').style.display="inline";
+	} else if(__ss_reboot_check	== "2")	{
+		document.getElementById('_ss_basic_week_pre').style.display="inline";
+		document.getElementById('_ss_basic_day_pre').style.display="none";
+		document.getElementById('_ss_basic_time_pre').style.display="inline";
+		document.getElementById('_ss_basic_inter_pre').style.display="none";
+		document.getElementById('_ss_basic_custom_pre').style.display="none";
+		document.getElementById('_ss_basic_send_text').style.display="inline";
+	} else if(__ss_reboot_check	== "3")	{
+		document.getElementById('_ss_basic_week_pre').style.display="none";
+		document.getElementById('_ss_basic_day_pre').style.display="inline";
+		document.getElementById('_ss_basic_time_pre').style.display="inline";
+		document.getElementById('_ss_basic_inter_pre').style.display="none";
+		document.getElementById('_ss_basic_custom_pre').style.display="none";
+		document.getElementById('_ss_basic_send_text').style.display="inline";
+	} else if(__ss_reboot_check	== "4")	{
+		document.getElementById('_ss_basic_week_pre').style.display="none";
+		document.getElementById('_ss_basic_day_pre').style.display="none";
+		document.getElementById('_ss_basic_time_pre').style.display="none";
+		document.getElementById('_ss_basic_inter_pre').style.display="inline";
+		document.getElementById('_ss_basic_custom_pre').style.display="none";
+		document.getElementById('_ss_basic_send_text').style.display="inline";
+		__ss_basic_inter_pre=db_ss["ss_basic_inter_pre"];
+		if (__ss_basic_inter_pre ==	"1") {
+			document.getElementById('ss_basic_inter_min').style.display="inline";
+			document.getElementById('ss_basic_inter_hour').style.display="none";
+			document.getElementById('ss_basic_inter_day').style.display="none";
+			document.getElementById('_ss_basic_time_pre').style.display="none";
+			document.getElementById('_ss_basic_inter_pre').style.display="inline";
+			document.getElementById('_ss_basic_send_text').style.display="inline";
+		} else if(__ss_basic_inter_pre == "2") {
+			document.getElementById('ss_basic_inter_min').style.display="none";
+			document.getElementById('ss_basic_inter_hour').style.display="inline";
+			document.getElementById('ss_basic_inter_day').style.display="none";
+			document.getElementById('_ss_basic_time_pre').style.display="none";
+			document.getElementById('_ss_basic_inter_pre').style.display="inline";
+			document.getElementById('_ss_basic_send_text').style.display="inline";
+		} else if(__ss_basic_inter_pre == "3") {
+			document.getElementById('ss_basic_inter_min').style.display="none";
+			document.getElementById('ss_basic_inter_hour').style.display="none";
+			document.getElementById('ss_basic_inter_day').style.display="inline";
+			document.getElementById('_ss_basic_time_pre').style.display="inline";
+			document.getElementById('_ss_basic_inter_pre').style.display="inline";
+			document.getElementById('_ss_basic_send_text').style.display="inline";
+		}
+	} else if(__ss_reboot_check	== "5")	{
+		document.getElementById('_ss_basic_week_pre').style.display="none";
+		document.getElementById('_ss_basic_day_pre').style.display="none";
+		document.getElementById('_ss_basic_time_pre').style.display="inline";
+		document.getElementById('_ss_basic_inter_pre').style.display="none";
+		document.getElementById('_ss_basic_custom_pre').style.display="inline";
+		document.getElementById('_ss_basic_send_text').style.display="inline";
+		document.getElementById('ss_basic_time_hour').style.display="none";
+	}
+	
 	refresh_acl_table();
 }
 
@@ -672,6 +743,7 @@ function update_visibility() {
 	var d = E("ss_basic_udp_upstream_mtu").value == "1";
 	var e = E("ss_dns_china").value == "12";
 	var f = E("ss_foreign_dns").value;
+	var g = E("ss_basic_tri_reboot_time").value;
 	showhide("ss_basic_rule_update_time", a);
 	showhide("update_choose", a);
 	showhide("ss_basic_node_update_day", b);
@@ -683,6 +755,8 @@ function update_visibility() {
 	showhide("ss_dns2socks_user", (f == "3"));
 	showhide("ss_sstunnel_user", (f == "4"));
 	showhide("ss_chinadns1_user", (f == "5"));
+	showhide("ss_basic_tri_reboot_time_note", (g != "0"));
+	showhide("ss_basic_tri_reboot_policy", (g != "0"));
 	if(f == "6"){
 		$("#ss_foreign_dns_note").html('DNS over HTTPS (DoH)，<a href="https://cloudflare-dns.com/zh-Hans/" target="_blank"><em>cloudflare服务</em></a>，拒绝一切污染~');
 	}else if(f == "7"){
@@ -2748,6 +2822,140 @@ function v2ray_binary_update (){
 	});
 }
 
+function status_onchange(){
+    var __ss_reboot_check="";
+    var ___ss_basic_inter_pre="";
+    __ss_reboot_check=document.getElementById("ss_reboot_check").value;
+    ___ss_basic_inter_pre=document.getElementById("ss_basic_inter_pre").value;
+    //alert(__ss_reboot_check)
+    if (__ss_reboot_check == "0") {
+        document.getElementById('_ss_basic_day_pre').style.display="none";
+        document.getElementById('_ss_basic_week_pre').style.display="none";
+        document.getElementById('_ss_basic_time_pre').style.display="none";
+        document.getElementById('_ss_basic_inter_pre').style.display="none";
+        document.getElementById('_ss_basic_custom_pre').style.display="none";
+        document.getElementById('_ss_basic_send_text').style.display="none";
+    } else if(__ss_reboot_check == "1"){
+        document.getElementById('_ss_basic_week_pre').style.display="none";
+        document.getElementById('_ss_basic_day_pre').style.display="none";
+        document.getElementById('_ss_basic_time_pre').style.display="inline";
+        document.getElementById('_ss_basic_inter_pre').style.display="none";
+        document.getElementById('_ss_basic_custom_pre').style.display="none";
+        document.getElementById('_ss_basic_send_text').style.display="inline";
+        document.getElementById('ss_basic_time_hour').style.display="inline";
+    } else if(__ss_reboot_check == "2"){
+        document.getElementById('_ss_basic_week_pre').style.display="inline";
+        document.getElementById('_ss_basic_day_pre').style.display="none";
+        document.getElementById('_ss_basic_time_pre').style.display="inline";
+        document.getElementById('_ss_basic_inter_pre').style.display="none";
+        document.getElementById('_ss_basic_custom_pre').style.display="none";
+        document.getElementById('ss_basic_time_hour').style.display="inline";
+        document.getElementById('_ss_basic_send_text').style.display="inline";
+    } else if(__ss_reboot_check == "3"){
+        document.getElementById('_ss_basic_week_pre').style.display="none";
+        document.getElementById('_ss_basic_day_pre').style.display="inline";
+        document.getElementById('_ss_basic_time_pre').style.display="inline";
+        document.getElementById('_ss_basic_inter_pre').style.display="none";
+        document.getElementById('_ss_basic_custom_pre').style.display="none";
+        document.getElementById('ss_basic_time_hour').style.display="inline";
+        document.getElementById('_ss_basic_send_text').style.display="inline";
+    } else if(__ss_reboot_check == "4"){
+        document.getElementById('_ss_basic_week_pre').style.display="none";
+        document.getElementById('_ss_basic_day_pre').style.display="none";
+        document.getElementById('_ss_basic_time_pre').style.display="none";
+        document.getElementById('_ss_basic_inter_pre').style.display="inline";
+        document.getElementById('_ss_basic_custom_pre').style.display="none";
+        document.getElementById('_ss_basic_send_text').style.display="inline";
+        if (___ss_basic_inter_pre == "1") {
+            document.getElementById('ss_basic_inter_min').style.display="inline";
+            document.getElementById('ss_basic_inter_hour').style.display="none";
+            document.getElementById('ss_basic_inter_day').style.display="none";
+            document.getElementById('_ss_basic_time_pre').style.display="none";
+            document.getElementById('_ss_basic_inter_pre').style.display="inline";
+            document.getElementById('_ss_basic_send_text').style.display="inline";
+        } else if(___ss_basic_inter_pre == "2"){
+            document.getElementById('ss_basic_inter_min').style.display="none";
+            document.getElementById('ss_basic_inter_hour').style.display="inline";
+            document.getElementById('ss_basic_inter_day').style.display="none";
+            document.getElementById('_ss_basic_time_pre').style.display="none";
+            document.getElementById('_ss_basic_inter_pre').style.display="inline";
+            document.getElementById('_ss_basic_send_text').style.display="inline";
+        } else if(___ss_basic_inter_pre == "3"){
+            document.getElementById('ss_basic_inter_min').style.display="none";
+            document.getElementById('ss_basic_inter_hour').style.display="none";
+            document.getElementById('ss_basic_inter_day').style.display="inline";
+            document.getElementById('_ss_basic_time_pre').style.display="inline";
+            document.getElementById('_ss_basic_inter_pre').style.display="inline";
+            document.getElementById('_ss_basic_send_text').style.display="inline";
+            document.getElementById('ss_basic_time_hour').style.display="inline";
+        }
+    } else if(__ss_reboot_check == "5"){
+        document.getElementById('_ss_basic_week_pre').style.display="none";
+        document.getElementById('_ss_basic_day_pre').style.display="none";
+        document.getElementById('_ss_basic_time_pre').style.display="inline";
+        document.getElementById('_ss_basic_inter_pre').style.display="none";
+        document.getElementById('_ss_basic_custom_pre').style.display="inline";
+        document.getElementById('_ss_basic_send_text').style.display="inline";
+        document.getElementById('ss_basic_time_hour').style.display="none";
+    }
+}
+function inter_pre_onchange(){
+    var __ss_basic_inter_pre="";
+    __ss_basic_inter_pre=document.getElementById("ss_basic_inter_pre").value;
+    if (__ss_basic_inter_pre == "1") {
+        document.getElementById('ss_basic_inter_min').style.display="inline";
+        document.getElementById('ss_basic_inter_hour').style.display="none";
+        document.getElementById('ss_basic_inter_day').style.display="none";
+        document.getElementById('_ss_basic_time_pre').style.display="none";
+        document.getElementById('_ss_basic_inter_pre').style.display="inline";
+        document.getElementById('_ss_basic_send_text').style.display="inline";
+    } else if(__ss_basic_inter_pre == "2"){
+        document.getElementById('ss_basic_inter_min').style.display="none";
+        document.getElementById('ss_basic_inter_hour').style.display="inline";
+        document.getElementById('ss_basic_inter_day').style.display="none";
+        document.getElementById('_ss_basic_time_pre').style.display="none";
+        document.getElementById('_ss_basic_inter_pre').style.display="inline";
+        document.getElementById('_ss_basic_send_text').style.display="inline";
+    } else if(__ss_basic_inter_pre == "3"){
+        document.getElementById('ss_basic_inter_min').style.display="none";
+        document.getElementById('ss_basic_inter_hour').style.display="none";
+        document.getElementById('ss_basic_inter_day').style.display="inline";
+        document.getElementById('_ss_basic_time_pre').style.display="inline";
+        document.getElementById('_ss_basic_inter_pre').style.display="inline";
+        document.getElementById('_ss_basic_send_text').style.display="inline";
+    }
+}
+
+function set_cron(action) {
+	var dbus = {};
+	dbus["SystemCmd"] = "ss_reboot_job.sh";
+	dbus["action_mode"] = " Refresh ";
+	dbus["current_page"] = "Main_Ss_Content.asp";
+	dbus["ss_basic_reboot_action"] = action;
+	if(action == 1){
+		//设定定时重启
+		db_ss["ss_basic_action"] = "16";
+		var cron_params1 = ["ss_reboot_check", "ss_basic_week", "ss_basic_day", "ss_basic_inter_min", "ss_basic_inter_hour", "ss_basic_inter_day", "ss_basic_inter_pre", "ss_basic_custom", "ss_basic_time_hour", "ss_basic_time_min"]; //for ss
+		for (var i = 0; i < cron_params1.length; i++) {
+			dbus[cron_params1[i]] = E(cron_params1[i]).value;
+		}
+		
+		if (!E("ss_basic_custom").value) {
+			dbus["ss_basic_custom"] = "";
+		} else {
+			dbus["ss_basic_custom"] = Base64.encode(E("ss_basic_custom").value);
+		}
+	}else if(action == 2){
+		//设定触发重启
+		db_ss["ss_basic_action"] = "17";
+		var cron_params2 = ["ss_basic_tri_reboot_time", "ss_basic_tri_reboot_policy"]; //for ss
+		for (var i = 0; i < cron_params2.length; i++) {
+			dbus[cron_params2[i]] = E(cron_params2[i]).value;
+		}
+	}
+	push_data(dbus);
+}
+
 </script>
 </head>
 <body onload="init();">
@@ -4413,6 +4621,243 @@ taobao.com
 														<img id="loadingicon" style="margin-left:5px;margin-right:5px;display:none;" src="/images/InternetScan.gif"/>
 														<span id="ss_file_info" style="display:none;">完成</span>
 														<input type="button" class="ss_btn" style="cursor:pointer;" onclick="upload_ss_backup();" value="恢复配置"/>
+													</td>
+												</tr>
+												<tr>
+													<th	width="20%">插件定时重启设定（实验）</th>
+													<td>
+														<select	id="ss_reboot_check" name="ss_reboot_check"	style="margin:0px 0px 0px 2px;"	class="input_option" onchange="status_onchange();" >
+															<option	value="0" selected>关闭</option>
+															<option	value="1">每天</option>
+															<option	value="2">每周</option>
+															<option	value="3">每月</option>
+															<option	value="4">每隔</option>
+															<option	value="5">自定义</option>
+														</select>
+														<span id="_ss_basic_week_pre" style="display: none;">
+															<select	id="ss_basic_week" name="ss_basic_week"	style="margin:0px 0px 0px 2px;"	class="input_option" >
+																<option	value="1">一</option>
+																<option	value="2">二</option>
+																<option	value="3">三</option>
+																<option	value="4">四</option>
+																<option	value="5">五</option>
+																<option	value="6">六</option>
+																<option	value="7">日</option>
+															</select>
+														</span>
+														<span id="_ss_basic_day_pre" style="display: none;">
+															<select	id="ss_basic_day" name="ss_basic_day" style="margin:0px	0px	0px	2px;" class="input_option" >
+																<option	value="1">1日</option>
+																<option	value="2">2日</option>
+																<option	value="3">3日</option>
+																<option	value="4">4日</option>
+																<option	value="5">5日</option>
+																<option	value="6">6日</option>
+																<option	value="7">7日</option>
+																<option	value="8">8日</option>
+																<option	value="9">9日</option>
+																<option	value="10">10日</option>
+																<option	value="11">11日</option>
+																<option	value="12">12日</option>
+																<option	value="13">13日</option>
+																<option	value="14">14日</option>
+																<option	value="15">15日</option>
+																<option	value="16">16日</option>
+																<option	value="17">17日</option>
+																<option	value="18">18日</option>
+																<option	value="19">19日</option>
+																<option	value="20">20日</option>
+																<option	value="21">21日</option>
+																<option	value="22">22日</option>
+																<option	value="23">23日</option>
+																<option	value="24">24日</option>
+																<option	value="25">25日</option>
+																<option	value="26">26日</option>
+																<option	value="27">27日</option>
+																<option	value="28">28日</option>
+																<option	value="29">29日</option>
+																<option	value="30">30日</option>
+																<option	value="31">31日</option>
+															</select>
+														</span>
+														<span id="_ss_basic_inter_pre" style="display: none;">
+															<select	id="ss_basic_inter_min"	name="ss_basic_inter_min" style="margin:0px	0px	0px	2px;" class="input_option" >
+																<option	value="1">1</option>
+																<option	value="5">5</option>
+																<option	value="10">10</option>
+																<option	value="15">15</option>
+																<option	value="20">20</option>
+																<option	value="25">25</option>
+																<option	value="30">30</option>
+															</select>
+															<select	id="ss_basic_inter_hour" name="ss_basic_inter_hour"	style="display:	none; margin:0px 0px 0px 2px;" class="input_option"	>
+																<option	value="1">1</option>
+																<option	value="2">2</option>
+																<option	value="3">3</option>
+																<option	value="4">4</option>
+																<option	value="5">5</option>
+																<option	value="6">6</option>
+																<option	value="7">7</option>
+																<option	value="8">8</option>
+																<option	value="9">9</option>
+																<option	value="10">10</option>
+																<option	value="11">11</option>
+																<option	value="12">12</option>
+															</select>
+															<select	id="ss_basic_inter_day"	name="ss_basic_inter_day" style="display: none;	margin:0px 0px 0px 2px;" class="input_option" >
+																<option	value="1">1</option>
+																<option	value="2">2</option>
+																<option	value="3">3</option>
+																<option	value="4">4</option>
+																<option	value="5">5</option>
+																<option	value="6">6</option>
+																<option	value="7">7</option>
+																<option	value="8">8</option>
+																<option	value="9">9</option>
+																<option	value="10">10</option>
+																<option	value="11">11</option>
+																<option	value="12">12</option>
+																<option	value="13">13</option>
+																<option	value="14">14</option>
+																<option	value="15">15</option>
+																<option	value="16">16</option>
+																<option	value="17">17</option>
+																<option	value="18">18</option>
+																<option	value="19">19</option>
+																<option	value="20">20</option>
+																<option	value="21">21</option>
+																<option	value="22">22</option>
+																<option	value="23">23</option>
+																<option	value="24">24</option>
+																<option	value="25">25</option>
+																<option	value="26">26</option>
+																<option	value="27">27</option>
+																<option	value="28">28</option>
+																<option	value="29">29</option>
+																<option	value="30">30</option>
+															</select>
+															<select	id="ss_basic_inter_pre"	name="ss_basic_inter_pre" style="margin:0px	0px	0px	2px;" class="input_option" onchange="inter_pre_onchange();"	>
+																<option	value="1">分钟</option>
+																<option	value="2">小时</option>
+																<option	value="3">天</option>
+															</select>
+														</span>
+														<span id="_ss_basic_custom_pre"	style="display:	none;">
+															<input type="text" id="ss_basic_custom"	name="ss_basic_custom" class="input_6_table" maxlength="50"	title="填写说明：&#13;此处填写1-23之间任意小时&#13;小时间用逗号间隔，如：&#13;当天的8点、10点、15点则填入：8,10,15" placeholder="8,10,15" style="width:150px;" /> 小时
+														</span>
+														<span id="_ss_basic_time_pre" style="display: none;">
+															<select	id="ss_basic_time_hour"	name="ss_basic_time_hour" style="margin:0px	0px	0px	2px;" class="input_option" >
+																<option	value="0">0时</option>
+																<option	value="1">1时</option>
+																<option	value="2">2时</option>
+																<option	value="3">3时</option>
+																<option	value="4">4时</option>
+																<option	value="5">5时</option>
+																<option	value="6">6时</option>
+																<option	value="7">7时</option>
+																<option	value="8">8时</option>
+																<option	value="9">9时</option>
+																<option	value="10">10时</option>
+																<option	value="11">11时</option>
+																<option	value="12">12时</option>
+																<option	value="13">13时</option>
+																<option	value="14">14时</option>
+																<option	value="15">15时</option>
+																<option	value="16">16时</option>
+																<option	value="17">17时</option>
+																<option	value="18">18时</option>
+																<option	value="19">19时</option>
+																<option	value="20">20时</option>
+																<option	value="21">21时</option>
+																<option	value="22">22时</option>
+																<option	value="23">23时</option>
+															</select>
+															<select	id="ss_basic_time_min" name="ss_basic_time_min"	style="margin:0px 0px 0px 2px;"	class="input_option" >
+																<option	value="0">0分</option>
+																<option	value="1">1分</option>
+																<option	value="2">2分</option>
+																<option	value="3">3分</option>
+																<option	value="4">4分</option>
+																<option	value="5">5分</option>
+																<option	value="6">6分</option>
+																<option	value="7">7分</option>
+																<option	value="8">8分</option>
+																<option	value="9">9分</option>
+																<option	value="10">10分</option>
+																<option	value="11">11分</option>
+																<option	value="12">12分</option>
+																<option	value="13">13分</option>
+																<option	value="14">14分</option>
+																<option	value="15">15分</option>
+																<option	value="16">16分</option>
+																<option	value="17">17分</option>
+																<option	value="18">18分</option>
+																<option	value="19">19分</option>
+																<option	value="20">20分</option>
+																<option	value="21">21分</option>
+																<option	value="22">22分</option>
+																<option	value="23">23分</option>
+																<option	value="24">24分</option>
+																<option	value="25">25分</option>
+																<option	value="26">26分</option>
+																<option	value="27">27分</option>
+																<option	value="28">28分</option>
+																<option	value="29">29分</option>
+																<option	value="30">30分</option>
+																<option	value="31">31分</option>
+																<option	value="32">32分</option>
+																<option	value="33">33分</option>
+																<option	value="34">34分</option>
+																<option	value="35">35分</option>
+																<option	value="36">36分</option>
+																<option	value="37">37分</option>
+																<option	value="38">38分</option>
+																<option	value="39">39分</option>
+																<option	value="40">40分</option>
+																<option	value="41">41分</option>
+																<option	value="42">42分</option>
+																<option	value="43">43分</option>
+																<option	value="44">44分</option>
+																<option	value="45">45分</option>
+																<option	value="46">46分</option>
+																<option	value="47">47分</option>
+																<option	value="48">48分</option>
+																<option	value="49">49分</option>
+																<option	value="50">50分</option>
+																<option	value="51">51分</option>
+																<option	value="52">52分</option>
+																<option	value="53">53分</option>
+																<option	value="54">54分</option>
+																<option	value="55">55分</option>
+																<option	value="56">56分</option>
+																<option	value="57">57分</option>
+																<option	value="58">58分</option>
+																<option	value="59">59分</option>
+															</select>
+														</span>
+														<span id="_ss_basic_send_text" style="display: none;">重启插件</span>
+														<a type="button" class="ss_btn" style="cursor:pointer" onclick="set_cron(1)">保存设置</a>
+													</td>
+												</tr>
+												<tr>
+													<th>插件触发重启设定（实验）</th>
+													<td>
+														<select	id="ss_basic_tri_reboot_time" name="ss_basic_tri_reboot_time" style="margin:0px	0px	0px	2px;" class="input_option" onclick="update_visibility();">
+															<option	value="0" selected>关闭</option>
+															<option	value="2">每隔2分钟</option>
+															<option	value="5">每隔5分钟</option>
+															<option	value="10">每隔10分钟</option>
+															<option	value="15">每隔15分钟</option>
+															<option	value="20">每隔20分钟</option>
+															<option	value="25">每隔25分钟</option>
+															<option	value="30">每隔30分钟</option>
+														</select>
+														<span id="ss_basic_tri_reboot_time_note">解析服务器IP，如果发生变更，则重启</span>
+														<select	id="ss_basic_tri_reboot_policy" name="ss_basic_tri_reboot_policy" style="margin:0px	0px	0px	2px;" class="input_option" >
+															<option	value="1" selected>整个插件</option>
+															<option	value="2">dnsmasq</option>
+														</select>
+														<a type="button" class="ss_btn" style="cursor:pointer" onclick="set_cron(2)">保存设置</a>
 													</td>
 												</tr>
 											</table>

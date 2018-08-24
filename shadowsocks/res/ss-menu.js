@@ -318,6 +318,12 @@ function LoadingSSProgress(seconds) {
 	} else if (action == 15) {
 		document.getElementById("loading_block3").innerHTML = "V2Ray 二进制文件更新 ..."
 		$("#loading_block2").html("<li><font color='#ffcc00'>请勿刷新本页面，更新中 ...</font></li>");
+	} else if (action == 16) {
+		document.getElementById("loading_block3").innerHTML = "设置插件重启定时任务 ..."
+		$("#loading_block2").html("<li><font color='#ffcc00'>请勿刷新本页面，应用中 ...</font></li>");
+	} else if (action == 17) {
+		document.getElementById("loading_block3").innerHTML = "设置插件触发重启定时任务 ..."
+		$("#loading_block2").html("<li><font color='#ffcc00'>请勿刷新本页面，应用中 ...</font></li>");
 	}
 }
 

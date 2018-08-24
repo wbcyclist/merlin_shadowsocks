@@ -117,6 +117,7 @@ restore_conf(){
 	rm -rf /tmp/sscdn.conf
 	rm -rf /tmp/custom.conf
 	rm -rf /tmp/wblist.conf
+	rm -rf /tmp/ss_host.conf
 }
 
 kill_process(){
@@ -261,7 +262,9 @@ resolv_server_ip(){
 
 			if [ -n "$server_ip" ];then
 				echo_date SS服务器的ip地址解析成功：$server_ip
-				echo "address=/$ss_basic_server/$server_ip" > /jffs/configs/dnsmasq.d/ss_host.conf
+				#echo "address=/$ss_basic_server/$server_ip" > /jffs/configs/dnsmasq.d/ss_host.conf
+				echo "address=/$ss_basic_server/$server_ip" > /tmp/ss_host.conf
+				ln -sf /tmp/ss_host.conf /jffs/configs/dnsmasq.d/ss_host.conf
 				ss_basic_server="$server_ip"
 				ss_basic_server_ip="$server_ip"
 				dbus set ss_basic_server_ip="$server_ip"
@@ -1296,7 +1299,9 @@ creat_v2ray_json(){
 
 				if [ -n "$v2ray_server_ip" ];then
 					echo_date "v2ray服务器的ip地址解析成功：$v2ray_server_ip"
-					echo "address=/$v2ray_server/$v2ray_server_ip" > /jffs/configs/dnsmasq.d/ss_host.conf
+					#echo "address=/$v2ray_server/$v2ray_server_ip" > /jffs/configs/dnsmasq.d/ss_host.conf
+					echo "address=/$v2ray_server/$v2ray_server_ip" > /tmp/ss_host.conf
+					ln -sf /tmp/ss_host.conf /jffs/configs/dnsmasq.d/ss_host.conf
 					ss_basic_server_ip="$v2ray_server_ip"
 				else
 					echo_date "v2ray服务器的ip地址解析失败!插件将继续运行，域名解析将由v2ray自己进行！"
@@ -1770,19 +1775,92 @@ set_ulimit(){
 	ulimit -n 16384
 }
 
-disable_ss(){
-	echo_date ======================= 梅林固件 - 【科学上网】 ========================
-	echo_date
-	echo_date ------------------------- 关闭【科学上网】 -----------------------------
-	nvram set ss_mode=0
-	dbus set dns2socks=0
-	nvram commit
-	kill_process
-	restore_conf
-	restart_dnsmasq
-	flush_nat
-	kill_cron_job
-	echo_date ------------------------ 【科学上网】已关闭 ----------------------------
+remove_dnsmasq_restart_delay(){
+	# 为避免90秒内用户再次重启插件，先清理一次之前的90秒后重启dnsmasq任务
+	#cru d ss_dnsmasq_restart >/dev/null 2>&1
+	sed -i '/ss_dnsmasq_restart/d' /var/spool/cron/crontabs/* >/dev/null 2>&1
+}
+
+set_dnsmasq_restart_delay(){
+	# 插件启动完成的90秒后重启一次dnsmasq
+	
+	#echo `date "+%Y-%m-%d %H:%M:%S"`
+	second_now=`date +%s`
+	second_future=`expr $second_now + 90`
+	
+	#date_future=`date -d @$second_future "+%Y-%m-%d %H:%M:%S"`
+	day_future=`date -d @$second_future "+%d"`
+	hour_future=`date -d @$second_future "+%H"`
+	min_future=`date -d @$second_future "+%M"`
+	
+	#echo date_future: $date_future
+	#echo day_future: $day_future
+	#echo hour_future: $hour_future
+	#echo min_future: $min_future
+
+	cru a ss_dnsmasq_restart "$min_future $hour_future $day_future * * /koolshare/scripts/ss_dnsmasq_restart_delay.sh restart"
+}
+
+remove_ss_reboot_job(){
+	if [ -n "`cru l|grep ss_reboot`" ]; then
+		echo_date 删除插件自动重启定时任务...
+		#cru d ss_reboot >/dev/null 2>&1
+		sed -i '/ss_reboot/d' /var/spool/cron/crontabs/* >/dev/null 2>&1
+	fi
+}
+
+set_ss_reboot_job(){
+	if [[ "${ss_reboot_check}" == "0" ]]; then
+		remove_ss_reboot_job
+	elif [[	"${ss_reboot_check}" ==	"1"	]];	then
+		echo_date 设置每天${ss_basic_time_hour}时${ss_basic_time_min}分重启插件...
+		cru	a ss_reboot	${ss_basic_time_min} ${ss_basic_time_hour}"	* *	* /koolshare/ss/ssconfig.sh	restart"
+	elif [[	"${ss_reboot_check}" ==	"2"	]];	then
+		echo_date 设置每周${ss_basic_week}的${ss_basic_time_hour}时${ss_basic_time_min}分重启插件...
+		cru	a ss_reboot	${ss_basic_time_min} ${ss_basic_time_hour}"	* *	"${ss_basic_week}" /koolshare/ss/ssconfig.sh restart"
+	elif [[	"${ss_reboot_check}" ==	"3"	]];	then
+		echo_date 设置每月${ss_basic_day}日${ss_basic_time_hour}时${ss_basic_time_min}分重启插件...
+		cru	a ss_reboot	${ss_basic_time_min} ${ss_basic_time_hour} ${ss_basic_day}"	* *	/koolshare/ss/ssconfig.sh restart"
+	elif [[	"${ss_reboot_check}" ==	"4"	]];	then
+		if [[ "${ss_basic_inter_pre}" == "1" ]]; then
+			echo_date 设置每隔${ss_basic_inter_min}分钟重启插件...
+			cru	a ss_reboot	"*/"${ss_basic_inter_min}" * * * * /koolshare/ss/ssconfig.sh restart"
+		elif [[	"${ss_basic_inter_pre}"	== "2" ]]; then
+			echo_date 设置每隔${ss_basic_inter_hour}小时重启插件...
+			cru	a ss_reboot	"0 */"${ss_basic_inter_hour}" *	* *	/koolshare/ss/ssconfig.sh restart"
+		elif [[	"${ss_basic_inter_pre}"	== "3" ]]; then
+			echo_date 设置每隔${ss_basic_inter_day}天${ss_basic_inter_hour}小时${ss_basic_time_min}分钟重启插件...
+			cru	a ss_reboot	${ss_basic_time_min} ${ss_basic_time_hour}"	*/"${ss_basic_inter_day} " * * /koolshare/ss/ssconfig.sh restart"
+		fi
+	elif [[	"${ss_reboot_check}" ==	"5"	]];	then
+		check_custom_time=`dbus	get	ss_basic_custom	| base64_decode`
+		echo_date 设置每天${check_custom_time}时的${ss_basic_time_min}分重启插件...
+		cru	a ss_reboot	${ss_basic_time_min} ${check_custom_time}" * * * /koolshare/ss/ssconfig.sh restart"
+	else
+		remove_ss_reboot_job
+	fi
+}
+
+remove_ss_trigger_job(){
+	if [ -n "`cru l|grep ss_tri_check`" ]; then
+		echo_date 删除插件触发重启定时任务...
+		#cru d ss_tri_check >/dev/null 2>&1
+		sed -i '/ss_tri_check/d' /var/spool/cron/crontabs/* >/dev/null 2>&1
+	fi
+}
+
+set_ss_trigger_job(){
+	if [ "$ss_basic_tri_reboot_time" == "0" ] || [ -z "$ss_basic_tri_reboot_time" ];then
+		remove_ss_trigger_job
+	else
+		if [ "$ss_basic_tri_reboot_policy" == "1" ];then
+			echo_date 设置每隔$ss_basic_tri_reboot_time分钟检查服务器IP地址，如果IP发生变化，则重启科学上网插件...
+		else
+			echo_date 设置每隔$ss_basic_tri_reboot_time分钟检查服务器IP地址，如果IP发生变化，则重启dnsmasq...
+		fi
+		cru d ss_tri_check  >/dev/null 2>&1
+		cru a ss_tri_check "*/$ss_basic_tri_reboot_time * * * * /koolshare/scripts/ss_reboot_job.sh check_ip"
+	fi
 }
 
 load_nat(){
@@ -1834,6 +1912,15 @@ ss_pre_stop(){
 }
 
 detect(){
+	# 检测是否为路由模式，因为ss工作在nat下，所以其他模式均无法工作
+	if [ "`nvram get sw_mode`" != "1" ];then
+		echo_date "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+		echo_date "+     你的路由器未设置为无线路由器模式，科学上网插件无法正常工作！     +"
+		echo_date "+      请前往【系统管理】-【操作模式】内设置为无线路由器模式！！      +"
+		echo_date "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+		close_in_five
+	fi 
+	
 	# 检测jffs2脚本是否开启，如果没有开启，将会影响插件的自启和DNS部分（dnsmasq.postconf）
 	if [ "`nvram get jffs2_scripts`" != "1" ];then
 		echo_date "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -1870,6 +1957,25 @@ detect(){
 	fi
 }
 
+disable_ss(){
+	echo_date ======================= 梅林固件 - 【科学上网】 ========================
+	echo_date
+	echo_date ------------------------- 关闭【科学上网】 -----------------------------
+	nvram set ss_mode=0
+	dbus set dns2socks=0
+	dbus remove ss_basic_server_ip
+	nvram commit
+	kill_process
+	remove_dnsmasq_restart_delay
+	remove_ss_trigger_job
+	remove_ss_reboot_job
+	restore_conf
+	restart_dnsmasq
+	flush_nat
+	kill_cron_job
+	echo_date ------------------------ 【科学上网】已关闭 ----------------------------
+}
+
 apply_ss(){
 	# router is on boot
 	WAN_ACTION=`ps|grep /jffs/scripts/wan-start|grep -v grep`
@@ -1882,6 +1988,9 @@ apply_ss(){
 	dbus set dns2socks=0
 	nvram commit
 	kill_process
+	remove_dnsmasq_restart_delay
+	remove_ss_trigger_job
+	remove_ss_reboot_job
 	restore_conf
 	# restart dnsmasq when ss server is not ip or on router boot
 	restart_dnsmasq
@@ -1915,9 +2024,12 @@ apply_ss(){
 	restart_dnsmasq
 	auto_start
 	write_cron_job
-	echo_date ------------------------ 【科学上网】 启动完毕 ------------------------
+	set_ss_reboot_job
+	set_ss_trigger_job
 	# post-start
 	ss_post_start
+	set_dnsmasq_restart_delay
+	echo_date ------------------------ 【科学上网】 启动完毕 ------------------------
 }
 
 # for debug
