@@ -1,5 +1,11 @@
 Koolshare Asuswrt-Merlin shadowsocks for arm router Changelog
 ===========================================
+4.0.5
+   - fix	修复回国模式的一系列问题；
+   - fix	修复因机场给出错误的节点信息导致订阅后全部节点被删除的问题；
+   - upate	更新udpspeederv2最新二进制（2018年8月30日编译）；
+   - update	同步最新规则；
+
 4.0.4
    - update	udp2raw二进制更新20180728.1，udpspeederv2二进制更新20180806.0，thx to Love4Taylor；
    - update	udpspeederv2添加关闭数据包验证功能，thx to Love4Taylor；

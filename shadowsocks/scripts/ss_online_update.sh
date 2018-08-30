@@ -196,6 +196,7 @@ add_ss_servers(){
 
 get_remote_config(){
 	decode_link="$1"
+	action="$2"
 	server=$(echo "$decode_link" |awk -F':' '{print $1}')
 	server_port=$(echo "$decode_link" |awk -F':' '{print $2}')
 	protocol=$(echo "$decode_link" |awk -F':' '{print $3}')
@@ -213,27 +214,41 @@ get_remote_config(){
 	[ -n "$protoparam_temp" ] && protoparam=$(decode_url_link $protoparam_temp 0|sed 's/_compatible//g') || protoparam=''
 	
 	remarks_temp=$(echo "$decode_link" |awk -F':' '{print $6}'|grep -Eo "remarks.+"|sed 's/remarks=//g'|awk -F'&' '{print $1}')
-	[ -n "$remarks_temp" ] && remarks=$(decode_url_link $remarks_temp 0) || remarks='AutoSuB'
+	if [ "$action" == "1" ];then
+		#订阅
+		[ -n "$remarks_temp" ] && remarks=$(decode_url_link $remarks_temp 0) || remarks=""
+	elif [ "$action" == "2" ];then
+		# ssr://添加
+		[ -n "$remarks_temp" ] && remarks=$(decode_url_link $remarks_temp 0) || remarks='AutoSuB'
+	fi
 	
 	group_temp=$(echo "$decode_link" |awk -F':' '{print $6}'|grep -Eo "group.+"|sed 's/group=//g'|awk -F'&' '{print $1}')
-	[ -n "$group_temp" ] && group=$(decode_url_link $group_temp 0) || group='AutoSuBGroup'
+	if [ "$action" == "1" ];then
+		#订阅
+		[ -n "$group_temp" ] && group=$(decode_url_link $group_temp 0) || group=""
+	elif [ "$action" == "2" ];then
+		# ssr://添加
+		[ -n "$group_temp" ] && group=$(decode_url_link $group_temp 0) || group='AutoSuBGroup'
+	fi
 
 	[ -n "$group" ] && group_base64=`echo $group | base64_encode | sed 's/ -//g'`
 	[ -n "$server" ] && server_base64=`echo $server | base64_encode | sed 's/ -//g'`	
 	#把全部服务器节点写入文件 /usr/share/shadowsocks/serverconfig/all_onlineservers
 	[ -n "$group" ] && [ -n "$server" ] && echo $server_base64 $group_base64 >> /tmp/all_onlineservers
 	#echo ------
-	#echo $server
-	#echo $server_port
-	#echo $protocol
-	#echo $encrypt_method
-	#echo $obfs
-	#echo $password
-	#echo $obfsparam
-	#echo $protoparam
-	#echo $remarks
-	#echo $group
+	#echo group: $group
+	#echo remarks: $remarks
+	#echo server: $server
+	#echo server_port: $server_port
+	#echo password: $password
+	#echo encrypt_method: $encrypt_method
+	#echo protocol: $protocol
+	#echo protoparam: $protoparam
+	#echo obfs: $obfs
+	#echo obfsparam: $obfsparam
 	#echo ------
+	echo "$group" >> /tmp/all_group_info.txt
+	[ -n "$group" ] && return 0 || return 1
 }
 
 update_config(){
@@ -458,17 +473,23 @@ get_oneline_rule_now(){
 			for link in $urllinks
 			do
 				decode_link=$(decode_url_link $link 0)
-				get_remote_config $decode_link
-				update_config
+				get_remote_config $decode_link 1
+				[ "$?" == "0" ] && update_config || echo_date "检测到一个错误节点，已经跳过！"
 			done
+			# 储存对应订阅链接的group信息
+			if [ -n "$group" ];then
+				dbus set ss_online_group_$z=$group
+				echo $group >> /tmp/group_info.txt
+			else
+				# 如果最后一个节点是空的，那么使用这种方式去获取group名字
+				group=`cat /tmp/all_group_info.txt | sort -u | tail -n1`
+				[ -n "$group" ] && dbus set ss_online_group_$z=$group
+				[ -n "$group" ] && echo $group >> /tmp/group_info.txt
+			fi
 			# 去除订阅服务器上已经删除的节点
 			del_none_exist
 			# 节点重新排序
 			remove_node_gap
-			# 储存对应订阅链接的group信息
-			dbus set ss_online_group_$z=$group
-			sleep 1
-			echo $group >> /tmp/group_info.txt
 			USER_ADD=$(($(dbus list ssconf_basic_|grep _name_|wc -l) - $(dbus list ssconf_basic_|grep _group_|wc -l))) || 0
 			ONLINE_GET=$(dbus list ssconf_basic_|grep _group_|wc -l) || 0
 			echo_date "本次更新订阅来源 【$group】， 新增节点 $addnum 个，修改 $updatenum 个，删除 $delnum 个；"
@@ -489,6 +510,7 @@ start_update(){
 	rm -rf /tmp/ssr_subscribe_file_temp1.txt >/dev/null 2>&1
 	rm -rf /tmp/all_localservers >/dev/null 2>&1
 	rm -rf /tmp/all_onlineservers >/dev/null 2>&1
+	rm -rf /tmp/all_group_info.txt >/dev/null 2>&1
 	rm -rf /tmp/group_info.txt >/dev/null 2>&1
 	sleep 1
 	echo_date 收集本地节点名到文件
@@ -557,7 +579,7 @@ start_update(){
 				MATCH=`cat /tmp/group_info.txt | grep $local_group`
 				if [ -z "$MATCH" ];then
 					echo_date "==================================================================="
-					echo_date $local_group 节点已经不再订阅，将进行删除... 
+					echo_date 【$local_group】 节点已经不再订阅，将进行删除... 
 					confs_nu=`dbus list ssconf |grep "$local_group"| cut -d "=" -f 1|cut -d "_" -f 4`
 					for conf_nu in $confs_nu
 					do
@@ -627,6 +649,7 @@ start_update(){
 	rm -rf /tmp/ssr_subscribe_file_temp1.txt >/dev/null 2>&1
 	rm -rf /tmp/all_localservers >/dev/null 2>&1
 	rm -rf /tmp/all_onlineservers >/dev/null 2>&1
+	rm -rf /tmp/all_group_info.txt >/dev/null 2>&1
 	rm -rf /tmp/group_info.txt >/dev/null 2>&1
 }
 
@@ -647,6 +670,7 @@ add() {
 	rm -rf /tmp/ssr_subscribe_file_temp1.txt >/dev/null 2>&1
 	rm -rf /tmp/all_localservers >/dev/null 2>&1
 	rm -rf /tmp/all_onlineservers >/dev/null 2>&1
+	rm -rf /tmp/all_group_info.txt >/dev/null 2>&1
 	rm -rf /tmp/group_info.txt >/dev/null 2>&1
 	echo_date 添加链接为：`dbus get ss_base64_links`
 	ssrlinks=`dbus get ss_base64_links|sed 's/$/\n/'|sed '/^$/d'`
@@ -657,7 +681,7 @@ add() {
 				echo_date 检测到SSR链接...开始尝试解析...
 				new_ssrlink=`echo -n "$ssrlink" | sed 's/ssr:\/\///g'`
 				decode_ssrlink=$(decode_url_link $new_ssrlink 1)
-				get_remote_config $decode_ssrlink
+				get_remote_config $decode_ssrlink 2
 				add_ssr_servers 1
 			else
 				echo_date 检测到SS链接...开始尝试解析...
