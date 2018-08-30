@@ -8,8 +8,7 @@ source /koolshare/scripts/base.sh
 source helper.sh
 # Variable definitions
 alias echo_date='echo 【$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X)】:'
-ss_basic_version_local=`cat /koolshare/ss/version`
-dbus set ss_basic_version_local=$ss_basic_version_local
+dbus set ss_basic_version_local=`cat /koolshare/ss/version`
 LOG_FILE=/tmp/syslog.log
 CONFIG_FILE=/koolshare/ss/ss.json
 V2RAY_CONFIG_FILE_TMP="/tmp/v2ray_tmp.json"
@@ -124,7 +123,9 @@ kill_process(){
 	v2ray_process=`pidof v2ray`
 	if [ -n "$v2ray_process" ];then 
 		echo_date 关闭V2Ray进程...
+		# 有时候killall杀不了v2ray进程，所以用不同方式杀两次
 		killall v2ray >/dev/null 2>&1
+		kill -9 "$v2ray_process" >/dev/null 2>&1
 	fi
 	ssredir=`pidof ss-redir`
 	if [ -n "$ssredir" ];then 
@@ -247,6 +248,8 @@ resolv_server_ip(){
 	else
 		IFIP=`echo $ss_basic_server|grep -E "([0-9]{1,3}[\.]){3}[0-9]{1,3}|:"`
 		if [ -z "$IFIP" ];then
+			# 服务器地址强制由114解析，以免插件还未开始工作而导致解析失败
+			echo "server=/$ss_basic_server/114.114.114.114#53" > /jffs/configs/dnsmasq.d/ss_server.conf
 			echo_date 尝试解析SS服务器的ip地址
 			server_ip=`nslookup "$ss_basic_server" 114.114.114.114 | sed '1,4d' | awk '{print $3}' | grep -v :|awk 'NR==1{print}'`
 			if [ "$?" == "0" ];then
@@ -262,9 +265,10 @@ resolv_server_ip(){
 
 			if [ -n "$server_ip" ];then
 				echo_date SS服务器的ip地址解析成功：$server_ip
-				#echo "address=/$ss_basic_server/$server_ip" > /jffs/configs/dnsmasq.d/ss_host.conf
+				# 解析并记录一次ip，方便插件触发重启设定工作
 				echo "address=/$ss_basic_server/$server_ip" > /tmp/ss_host.conf
-				ln -sf /tmp/ss_host.conf /jffs/configs/dnsmasq.d/ss_host.conf
+				# 去掉此功能，以免ip发生变更导致问题，或者影响域名对应的其它二级域名
+				#ln -sf /tmp/ss_host.conf /jffs/configs/dnsmasq.d/ss_host.conf
 				ss_basic_server="$server_ip"
 				ss_basic_server_ip="$server_ip"
 				dbus set ss_basic_server_ip="$server_ip"
@@ -822,6 +826,7 @@ start_speeder(){
 			elif [ "$ss_basic_udp_software" == "2" ];then
 				echo_date 开启UDPspeederV2进程.
 				[ "$ss_basic_udpv2_disableobscure" == "1" ] && disable_obscure="--disable-obscure" || disable_obscure=""
+				[ "$ss_basic_udpv2_disablechecksum" == "1" ] && disable_checksum="--disable-checksum" || disable_checksum=""
 				[ -n "$ss_basic_udpv2_timeout" ] && timeout="--timeout $ss_basic_udpv2_timeout" || timeout=""
 				[ -n "$ss_basic_udpv2_mode" ] && mode="--mode $ss_basic_udpv2_mode" || mode=""
 				[ -n "$ss_basic_udpv2_report" ] && report="--report $ss_basic_udpv2_report" || report=""
@@ -835,11 +840,11 @@ start_speeder(){
 				if [ "$ss_basic_udp2raw_boost_enable" == "1" ];then
 					#串联：如果两者都开启了，则把udpspeeder的流udp量转发给udp2raw
 					speederv2 -c -l 0.0.0.0:1092 -r 127.0.0.1:1093 $key2 \
-					$fec $timeout $mode $report $mtu $jitter $interval $drop $disable_obscure $ss_basic_udpv2_other --fifo /tmp/fifo.file >/dev/null 2>&1 &
+					$fec $timeout $mode $report $mtu $jitter $interval $drop $disable_obscure $disable_checksum $ss_basic_udpv2_other --fifo /tmp/fifo.file >/dev/null 2>&1 &
 					#如果只开启了udpspeeder，则把udpspeeder的流udp量转发给服务器
 				else
 					speederv2 -c -l 0.0.0.0:1092 -r $ss_basic_udpv2_rserver:$ss_basic_udpv2_rport $key2 \
-					$fec $timeout $mode $report $mtu $jitter $interval $drop $disable_obscure $ss_basic_udpv2_other --fifo /tmp/fifo.file >/dev/null 2>&1 &
+					$fec $timeout $mode $report $mtu $jitter $interval $drop $disable_obscure $disable_checksum $ss_basic_udpv2_other --fifo /tmp/fifo.file >/dev/null 2>&1 &
 				fi
 			fi
 		fi
@@ -1285,6 +1290,8 @@ creat_v2ray_json(){
 				echo_date "检测到你的json配置的v2ray服务器：$v2ray_server不是ip格式！"
 				echo_date "为了确保v2ray的正常工作，建议配置ip格式的v2ray服务器地址！"
 				echo_date "尝试解析v2ray服务器的ip地址..."
+				# 服务器地址强制由114解析，以免插件还未开始工作而导致解析失败
+				echo "server=/$v2ray_server/114.114.114.114#53" > /jffs/configs/dnsmasq.d/ss_server.conf
 				v2ray_server_ip=`nslookup "$v2ray_server" 114.114.114.114 | sed '1,4d' | awk '{print $3}' | grep -v :|awk 'NR==1{print}'`
 				if [ "$?" == "0" ]; then
 					v2ray_server_ip=`echo $v2ray_server_ip|grep -E "([0-9]{1,3}[\.]){3}[0-9]{1,3}|:"`
@@ -1299,9 +1306,10 @@ creat_v2ray_json(){
 
 				if [ -n "$v2ray_server_ip" ];then
 					echo_date "v2ray服务器的ip地址解析成功：$v2ray_server_ip"
-					#echo "address=/$v2ray_server/$v2ray_server_ip" > /jffs/configs/dnsmasq.d/ss_host.conf
+					# 解析并记录一次ip，方便插件触发重启设定工作
 					echo "address=/$v2ray_server/$v2ray_server_ip" > /tmp/ss_host.conf
-					ln -sf /tmp/ss_host.conf /jffs/configs/dnsmasq.d/ss_host.conf
+					# 去掉此功能，以免ip发生变更导致问题，或者影响域名对应的其它二级域名
+					#ln -sf /tmp/ss_host.conf /jffs/configs/dnsmasq.d/ss_host.conf
 					ss_basic_server_ip="$v2ray_server_ip"
 				else
 					echo_date "v2ray服务器的ip地址解析失败!插件将继续运行，域名解析将由v2ray自己进行！"
@@ -1775,32 +1783,6 @@ set_ulimit(){
 	ulimit -n 16384
 }
 
-remove_dnsmasq_restart_delay(){
-	# 为避免90秒内用户再次重启插件，先清理一次之前的90秒后重启dnsmasq任务
-	#cru d ss_dnsmasq_restart >/dev/null 2>&1
-	sed -i '/ss_dnsmasq_restart/d' /var/spool/cron/crontabs/* >/dev/null 2>&1
-}
-
-set_dnsmasq_restart_delay(){
-	# 插件启动完成的90秒后重启一次dnsmasq
-	
-	#echo `date "+%Y-%m-%d %H:%M:%S"`
-	second_now=`date +%s`
-	second_future=`expr $second_now + 90`
-	
-	#date_future=`date -d @$second_future "+%Y-%m-%d %H:%M:%S"`
-	day_future=`date -d @$second_future "+%d"`
-	hour_future=`date -d @$second_future "+%H"`
-	min_future=`date -d @$second_future "+%M"`
-	
-	#echo date_future: $date_future
-	#echo day_future: $day_future
-	#echo hour_future: $hour_future
-	#echo min_future: $min_future
-
-	cru a ss_dnsmasq_restart "$min_future $hour_future $day_future * * /koolshare/scripts/ss_dnsmasq_restart_delay.sh restart"
-}
-
 remove_ss_reboot_job(){
 	if [ -n "`cru l|grep ss_reboot`" ]; then
 		echo_date 删除插件自动重启定时任务...
@@ -1912,15 +1894,6 @@ ss_pre_stop(){
 }
 
 detect(){
-	# 检测是否为路由模式，因为ss工作在nat下，所以其他模式均无法工作
-	if [ "`nvram get sw_mode`" != "1" ];then
-		echo_date "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-		echo_date "+     你的路由器未设置为无线路由器模式，科学上网插件无法正常工作！     +"
-		echo_date "+      请前往【系统管理】-【操作模式】内设置为无线路由器模式！！      +"
-		echo_date "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-		close_in_five
-	fi 
-	
 	# 检测jffs2脚本是否开启，如果没有开启，将会影响插件的自启和DNS部分（dnsmasq.postconf）
 	if [ "`nvram get jffs2_scripts`" != "1" ];then
 		echo_date "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -1966,7 +1939,6 @@ disable_ss(){
 	dbus remove ss_basic_server_ip
 	nvram commit
 	kill_process
-	remove_dnsmasq_restart_delay
 	remove_ss_trigger_job
 	remove_ss_reboot_job
 	restore_conf
@@ -1988,7 +1960,6 @@ apply_ss(){
 	dbus set dns2socks=0
 	nvram commit
 	kill_process
-	remove_dnsmasq_restart_delay
 	remove_ss_trigger_job
 	remove_ss_reboot_job
 	restore_conf
@@ -2028,7 +1999,6 @@ apply_ss(){
 	set_ss_trigger_job
 	# post-start
 	ss_post_start
-	set_dnsmasq_restart_delay
 	echo_date ------------------------ 【科学上网】 启动完毕 ------------------------
 }
 

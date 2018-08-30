@@ -89,7 +89,8 @@ check_ip(){
 				logger 【科学上网插件触发重启功能】：服务器ip地址未发生变化，不进行任何操作！
 			else
 				logger 【科学上网插件触发重启功能】：服务器ip地址发生变化，旧ip：【"$OLD_IP"】，新ip：【"$NEW_IP"】
-
+				#写入新的解析文件
+				echo "address=/$HOST/$NEW_IP" > /tmp/ss_host.conf
 				if [ "$ss_basic_tri_reboot_policy" == "1" ];then
 					logger 【科学上网插件触发重启功能】：重启整个插件，以应用新的ip
 					sh /koolshare/ss/ssconfig.sh restart

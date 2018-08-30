@@ -82,12 +82,8 @@ function detect(){
 	if(fw_version < 7.2){ //固件版本过低，不兼容
 		hide_elem();
 		E("warn_msg_1").style.display = "";
-		$('#warn_msg_1').html('<h2><font color="#FF9900">错误！</font></h2><h2>【科学上网】插件不可用！因为你的固件版本低于X7.2！</h2><h2>请前往<a href="http://koolshare.cn/forum-96-1.html" target="_blank"><u><em>【koolshare论坛】</em></u></a>下载并更新最新固件！</h2>');
+		$('#warn_msg_1').html('<h2><font color="#FF9900">错误！</font></h2><h2>【科学上网】插件不可用！因为你的固件版本低于X7.2！</h2><h2>请更新最新固件！</h2>');
 	}
-	//if(db_ss["ss_basic_use_kcp"] == 1){
-	//	E("warn_msg_2").style.display = "";
-	//	$('#warn_msg_2').html('<h2><font color="#FF9900">提醒：</font>你开启了KCP加速，建议挂载虚拟内存以保证kcptun程序运行稳定！</h2>');
-	//}
 }
 
 function hook_event() {
@@ -137,24 +133,6 @@ function pop_111() {
 	});
 }
 
-function pop_changelog() {
-	require(['/res/layer/layer.js'], function(layer) {
-		layer.open({
-			type: 2,
-			shade: .7,
-			//scrollbar: 0,
-			title: '科学上网插件 - 更新日志',
-			area: ['950px', '600px'],
-			fixed: true, //不固定
-			maxmin: true,
-			shadeClose: 1,
-			id: 'LAY_layuipro1',
-			btnAlign: 'c',
-			content: 'https://raw.githubusercontent.com/wbcyclist/merlin_shadowsocks/master/Changelog.txt',
-		});
-	});
-}
-
 function pop_help() {
 	require(['/res/layer/layer.js'], function(layer) {
 		layer.open({
@@ -174,7 +152,7 @@ function pop_help() {
 				<b>梅林固件 - 科学上网插件 - ' + db_ss["ss_basic_version_local"] + '</b><br><br>\
 				本插件是支持<a target="_blank" href="https://github.com/shadowsocks/shadowsocks-libev" ><u>SS</u></a>、<a target="_blank" href="https://github.com/shadowsocksrr/shadowsocksr-libev"><u>SSR</u></a>、<a target="_blank" href="http://firmware.koolshare.cn/binary/koolgame"><u>KoolGame</u></a>、<a target="_blank" href="https://github.com/v2ray/v2ray-core"><u>V2Ray</u></a>四种客户端的科学上网、游戏加速工具。<br>\
 				本插件仅支持Merlin AM380 2.6.36.4内核的固件，请不要用于其它固件安装。<br>\
-				使用本插件有任何问题，可以前往<a style="color:#e7bd16" target="_blank" href="https://github.com/koolshare/koolshare.github.io/issues"><u>github的issue页面</u></a>反馈~<br><br>\
+				使用本插件有任何问题，可以前往<a style="color:#e7bd16" target="_blank" href="https://github.com/hq450/fancyss/issues"><u>github的issue页面</u></a>反馈~<br><br>\
 				● SS/SSR一键脚本：<a style="color:#e7bd16" target="_blank" href="https://github.com/onekeyshell/kcptun_for_ss_ssr/tree/master"><u>一键安装KCPTUN for SS/SSR on Linux</u></a><br>\
 				● koolgame一键脚本：<a style="color:#e7bd16" target="_blank" href="https://github.com/clangcn/game-server"><u>一键安装koolgame服务器端脚本，完美支持nat2</u></a><br>\
 				● V2Ray一键脚本：<a style="color:#e7bd16" target="_blank" href="https://233blog.com/post/17/"><u>V2Ray 搭建和优化详细图文教程</u></a><br>\
@@ -263,7 +241,7 @@ function save(s) {
 	dbus["current_page"] = "Main_Ss_Content.asp";
 	//key define
 	var params_input = ["ssconf_basic_node", "ss_basic_mode", "ss_basic_server", "ss_basic_port", "ss_basic_method", "ss_basic_koolgame_udp", "ss_basic_ss_obfs", "ss_basic_ss_obfs_host", "ss_basic_rss_protocol", "ss_basic_rss_protocol_param", "ss_basic_rss_obfs", "ss_basic_rss_obfs_param", "ssconf_basic_ping_node", "ssconf_basic_ping_method", "ssconf_basic_test_node", "ssconf_basic_test_domain", "ss_dns_china", "ss_dns_china_user", "ss_foreign_dns", "ss_dns2socks_user", "ss_chinadns_user", "ss_chinadns1_user",  "ss_sstunnel_user", "ss_game2_dns_foreign", "ss_game2_dns2ss_user", "$ss_basic_kcp_lserver", "ss_basic_kcp_lport", "ss_basic_kcp_server", "ss_basic_kcp_port", "ss_basic_kcp_parameter", "ss_basic_rule_update", "ss_basic_rule_update_time", "ssr_subscribe_mode", "ssr_subscribe_obfspara", "ssr_subscribe_obfspara_val", "ss_basic_online_links_goss", "ss_basic_node_update", "ss_basic_node_update_day", "ss_basic_node_update_hr", "ss_base64_links", "ss_basic_refreshrate", "ss_basic_sleep", "ss_acl_default_port", "ss_online_action", "ss_acl_default_mode", "ss_basic_kcp_method", "ss_basic_kcp_password", "ss_basic_kcp_mode", "ss_basic_kcp_encrypt", "ss_basic_kcp_mtu", "ss_basic_kcp_sndwnd", "ss_basic_kcp_rcvwnd", "ss_basic_kcp_conn", "ss_basic_kcp_extra", "ss_basic_udp_software", "ss_basic_udp_node", "ss_basic_udpv1_lserver", "ss_basic_udpv1_lport", "ss_basic_udpv1_rserver", "ss_basic_udpv1_rport", "ss_basic_udpv1_password", "ss_basic_udpv1_mode", "ss_basic_udpv1_duplicate_nu", "ss_basic_udpv1_duplicate_time", "ss_basic_udpv1_jitter", "ss_basic_udpv1_report", "ss_basic_udpv1_drop", "ss_basic_udpv2_lserver", "ss_basic_udpv2_lport", "ss_basic_udpv2_rserver", "ss_basic_udpv2_rport", "ss_basic_udpv2_password", "ss_basic_udpv2_fec", "ss_basic_udpv2_timeout", "ss_basic_udpv2_mode", "ss_basic_udpv2_report", "ss_basic_udpv2_mtu", "ss_basic_udpv2_jitter", "ss_basic_udpv2_interval", "ss_basic_udpv2_drop", "ss_basic_udpv2_other", "ss_basic_udp2raw_lserver", "ss_basic_udp2raw_lport", "ss_basic_udp2raw_rserver", "ss_basic_udp2raw_rport", "ss_basic_udp2raw_password", "ss_basic_udp2raw_rawmode", "ss_basic_udp2raw_ciphermode", "ss_basic_udp2raw_authmode", "ss_basic_udp2raw_lowerlevel", "ss_basic_udp2raw_other", "ss_basic_udp_upstream_mtu", "ss_basic_udp_upstream_mtu_value", "ss_basic_v2ray_uuid", "ss_basic_v2ray_alterid", "ss_basic_v2ray_security", "ss_basic_v2ray_network", "ss_basic_v2ray_headtype_tcp", "ss_basic_v2ray_headtype_kcp", "ss_basic_v2ray_network_path", "ss_basic_v2ray_network_host", "ss_basic_v2ray_network_security", "ss_basic_v2ray_mux_concurrency", "ss_reboot_check", "ss_basic_week", "ss_basic_day", "ss_basic_inter_min", "ss_basic_inter_hour", "ss_basic_inter_day", "ss_basic_inter_pre", "ss_basic_time_hour", "ss_basic_time_min", "ss_basic_tri_reboot_time", "ss_basic_tri_reboot_policy"];
-	var params_check = ["ss_basic_enable", "ss_basic_use_kcp", "ss_basic_gfwlist_update", "ss_basic_chnroute_update", "ss_basic_cdn_update", "ss_basic_kcp_nocomp", "ss_basic_udp_boost_enable", "ss_basic_udpv1_disable_filter", "ss_basic_udpv2_disableobscure", "ss_basic_udp2raw_boost_enable", "ss_basic_udp2raw_a", "ss_basic_udp2raw_keeprule", "ss_basic_v2ray_use_json", "ss_basic_v2ray_mux_enable"];
+	var params_check = ["ss_basic_enable", "ss_basic_use_kcp", "ss_basic_gfwlist_update", "ss_basic_chnroute_update", "ss_basic_cdn_update", "ss_basic_kcp_nocomp", "ss_basic_udp_boost_enable", "ss_basic_udpv1_disable_filter", "ss_basic_udpv2_disableobscure", "ss_basic_udpv2_disablechecksum", "ss_basic_udp2raw_boost_enable", "ss_basic_udp2raw_a", "ss_basic_udp2raw_keeprule", "ss_basic_v2ray_use_json", "ss_basic_v2ray_mux_enable"];
 	var params_base64 = ["ss_basic_password", "ss_dnsmasq", "ss_wan_white_ip", "ss_wan_white_domain", "ss_wan_black_ip", "ss_wan_black_domain", "ss_online_links"];
 	// collect data from input
 	for (var i = 0; i < params_input.length; i++) {
@@ -1924,7 +1902,7 @@ function version_show() {
 	$.ajax({
 		url: 'https://raw.githubusercontent.com/wbcyclist/merlin_shadowsocks/master/config.json.js',
 		type: 'GET',
-		dataType: 'jsonp',
+		dataType: 'json',
 		success: function(res) {
 			if (typeof(res["version"]) != "undefined" && res["version"].length > 0) {
 				if (res["version"] == db_ss["ss_basic_version_local"]) {
@@ -3803,7 +3781,7 @@ function set_cron(action) {
 													<td>
 														<textarea placeholder="# 填入自定义的dnsmasq设置，一行一个
 # 例如hosts设置：
-address=/koolshare.cn/2.2.2.2
+address=/weibo.com/2.2.2.2
 # 防DNS劫持设置：
 bogus-nxdomain=220.250.64.18" rows="12" style="width:99%; font-family:'Lucida Console'; font-size:12px;background:#475A5F;color:#FFFFFF;" id="ss_dnsmasq" name="ss_dnsmasq" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" title=""></textarea>
 													</td>
@@ -4248,6 +4226,13 @@ taobao.com
 														<a>关闭可节省一点带宽和cpu。</a>
 													</td>
 												</tr>
+												<tr id="ss_basic_udpv2_disablechecksum_tr">
+													<th width="35%">* 关闭数据包验证（--disable-checksum）</th>
+													<td>
+														<input type="checkbox" id="ss_basic_udpv2_disablechecksum"/>
+														<a>关闭可节省一点带宽和cpu。</a>
+													</td>
+												</tr>
 												<tr id="ss_basic_udpv2_middle">
 													<th colspan="2">
 														其它参数
@@ -4315,6 +4300,7 @@ taobao.com
 													<td>
 														<select id="ss_basic_udp2raw_ciphermode" name="ss_basic_udp2raw_ciphermode" class="input_option" style="width:130px">
 															<option value="aes128cbc" selected="">aes128cbc</option>
+															<option value="aes128cfb">aes128cfb</option>
 															<option value="xor">xor</option>
 															<option value="none">无</option>
 														</select>	
@@ -4326,6 +4312,7 @@ taobao.com
 													<td>
 														<select id="ss_basic_udp2raw_authmode" name="ss_basic_udp2raw_authmode" class="input_option" style="width:130px">
 															<option value="md5" selected="">md5</option>
+															<option value="hmac_sha1">hmac_sha1</option>
 															<option value="crc32">crc32</option>
 															<option value="icmp">icmp</option>
 															<option value="simple">simple</option>

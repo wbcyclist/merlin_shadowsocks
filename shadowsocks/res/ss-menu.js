@@ -275,7 +275,7 @@ function LoadingSSProgress(seconds) {
 	document.getElementById("LoadingBar").style.visibility = "visible";
 	if (action == 0) {
 		document.getElementById("loading_block3").innerHTML = "科学上网功能关闭中 ..."
-		$("#loading_block2").html("<li><font color='#ffcc00'><a href='https://github.com/koolshare/koolshare.github.io/tree/acelan_softcenter_ui/shadowsocks' target='_blank'></font>插件工作有问题？请到<em>GITHUB</em>提交issue...</font></li>");
+		$("#loading_block2").html("<li><font color='#ffcc00'><a href='https://github.com/hq450/fancyss' target='_blank'></font>插件工作有问题？请到<em>GITHUB</em>提交issue...</font></li>");
 	} else if (action == 1) {
 		document.getElementById("loading_block3").innerHTML = "gfwlist模式启用中 ..."
 		$("#loading_block2").html("<li><font color='#ffcc00'>此期间请勿访问屏蔽网址，以免污染DNS进入缓存</font></li><li><font color='#ffcc00'>尝试不同的DNS解析方案，可以达到最佳的效果哦...</font></li><li><font color='#ffcc00'>请等待日志显示完毕，并出现自动关闭按钮！</font></li><li><font color='#ffcc00'>在此期间请不要刷新本页面，不然可能导致问题！</font></li>");
@@ -435,18 +435,16 @@ function openssHint(itemNum) {
 		//return overlib(statusmenu, OFFSETX, -860, OFFSETY, -290, LEFT, STICKY, WIDTH, 'width', CAPTION, " ", CLOSETITLE, '');
 	} else if (itemNum == 12) {
 		width = "500px";
-		statusmenu = "此处显示你的SS插件当前的版本号，当前版本：<% dbus_get_def("
-		ss_basic_version_local ", "
-		未知 "); %>,如果需要回滚SS版本，请参考以下操作步骤：";
+		statusmenu = "此处显示你的SS插件当前的版本号，当前版本：<% dbus_get_def("ss_basic_version_local", "未知"); %>,如果需要回滚SS版本，请参考以下操作步骤：";
 		statusmenu += "</br></br><font color='#CC0066'>1&nbsp;&nbsp;</font>进入<a href='Tools_Shell.asp' target='_blank'><u><font color='#00F'>webshell</font></u></a>或者其他telnet,ssh等能输入命令的工具";
-		statusmenu += "</br><font color='#CC0066'>2&nbsp;&nbsp;</font>请依次输入以下命令，等待上一条命令执行完后再运行下一条(这里以回滚3.6.4为例)：";
+		statusmenu += "</br><font color='#CC0066'>2&nbsp;&nbsp;</font>请依次输入以下命令，等待上一条命令执行完后再运行下一条(这里以回滚3.9.9为例)：";
 		statusmenu += "</br></br>&nbsp;&nbsp;&nbsp;&nbsp;cd /tmp";
-		statusmenu += "</br>&nbsp;&nbsp;&nbsp;&nbsp;wget --no-check-certificate https://raw.githubusercontent.com/koolshare/koolshare.github.io/acelan_softcenter_ui/shadowsocks/history/shadowsocks_3.6.4.tar.gz";
+		statusmenu += "</br>&nbsp;&nbsp;&nbsp;&nbsp;wget --no-check-certificate https://raw.githubusercontent.com/hq450/fancyss/master/fancyss_arm/history/shadowsocks_3.9.9.tar.gz";
 		statusmenu += "</br>&nbsp;&nbsp;&nbsp;&nbsp;tar -zxvf /tmp/shadowsocks.tar.gz";
 		statusmenu += "</br>&nbsp;&nbsp;&nbsp;&nbsp;chmod +x /tmp/shadowsocks/install.sh";
 		statusmenu += "</br>&nbsp;&nbsp;&nbsp;&nbsp;sh /tmp/shadowsocks/install.sh";
 		statusmenu += "</br></br>最后一条命令输入完后不会有任何打印信息。";
-		statusmenu += "</br>回滚其它版本号，请参考<a href='https://github.com/koolshare/koolshare.github.io/tree/acelan_softcenter_ui/shadowsocks/history' target='_blank'><u><font color='#00F'>版本历史列表</font></u></a>";
+		statusmenu += "</br>回滚其它版本号，请参考<a href='https://github.com/hq450/fancyss/tree/master/fancyss_arm/history' target='_blank'><u><font color='#00F'>版本历史列表</font></u></a>";
 		_caption = "shadowsocks for merlin 版本";
 	} else if (itemNum == 13) {
 		statusmenu = "&nbsp;&nbsp;&nbsp;&nbsp;SSR表示shadowwocksR-libev，相比较原版shadowwocksR-libev，其提供了强大的协议混淆插件，让你避开gfw的侦测。"

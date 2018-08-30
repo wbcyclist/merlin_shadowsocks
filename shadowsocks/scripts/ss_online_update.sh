@@ -8,7 +8,7 @@ source $KSROOT/scripts/base.sh
 alias echo_date='echo 【$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X)】:'
 eval `dbus export ss`
 LOCK_FILE=/tmp/online_update.lock
-NO_DEL=1
+DEL_SUBSCRIBE=0
 
 # ==============================
 # ssconf_basic_ping_
@@ -409,7 +409,7 @@ get_oneline_rule_now(){
 		curl --connect-timeout 8 -s -L $ssr_subscribe_link > /tmp/ssr_subscribe_file.txt
 	fi
 
-	#虽然下为0但是还是要检测下是否下载到正确的内容
+	#虽然为0但是还是要检测下是否下载到正确的内容
 	if [ "$?" == "0" ];then
 		#下载为空...
 		if [ -z "`cat /tmp/ssr_subscribe_file.txt`" ];then
@@ -417,8 +417,9 @@ get_oneline_rule_now(){
 			return 3
 		fi
 		#产品信息错误
-		wrong=`cat /tmp/ssr_subscribe_file.txt|grep "{"`
-		if [ -n "$wrong" ];then
+		wrong1=`cat /tmp/ssr_subscribe_file.txt|grep "{"`
+		wrong2=`cat /tmp/ssr_subscribe_file.txt|grep "<"`
+		if [ -n "$wrong1" -o -n "$wrong2" ];then
 			return 2
 		fi
 		#订阅地址有跳转
@@ -466,8 +467,6 @@ get_oneline_rule_now(){
 			remove_node_gap
 			# 储存对应订阅链接的group信息
 			dbus set ss_online_group_$z=$group
-			#尝试删除不再订阅的节点
-			NO_DEL=0
 			sleep 1
 			echo $group >> /tmp/group_info.txt
 			USER_ADD=$(($(dbus list ssconf_basic_|grep _name_|wc -l) - $(dbus list ssconf_basic_|grep _group_|wc -l))) || 0
@@ -477,8 +476,7 @@ get_oneline_rule_now(){
 			echo_date "现共有订阅SSR节点：$ONLINE_GET 个。"
 			echo_date "在线订阅列表更新完成!"
 		else
-			echo_date 该订阅链接不包含任何节点信息！请检查你的服务商是否更换了订阅链接！
-			NO_DEL=1
+			return 3
 		fi
 	else
 		return 1
@@ -527,37 +525,38 @@ start_update(){
 			continue
 			;;
 		2)
-			echo_date "无法获取产品信息"
+			echo_date "无法获取产品信息！请检查你的服务商是否更换了订阅链接！"
 			rm -rf /tmp/ssr_subscribe_file.txt >/dev/null 2>&1 &
-			NO_DEL=1
+			let DEL_SUBSCRIBE+=1
 			sleep 2
 			echo_date 退出订阅程序...
 			;;
 		3)
 			echo_date "该订阅链接不包含任何节点信息！请检查你的服务商是否更换了订阅链接！"
 			rm -rf /tmp/ssr_subscribe_file.txt >/dev/null 2>&1 &
-			NO_DEL=1
+			let DEL_SUBSCRIBE+=1
 			sleep 2
 			echo_date 退出订阅程序...
 			;;
 		1|*)
 			echo_date "下载订阅失败...请检查你的网络..."
 			rm -rf /tmp/ssr_subscribe_file.txt >/dev/null 2>&1 &
-			NO_DEL=1
+			let DEL_SUBSCRIBE+=1
 			sleep 2
 			echo_date 退出订阅程序...
 			;;
 		esac
 	done
 
-	if [ "$NO_DEL" == "0" ];then
-		# 尝试删除去掉的订阅链接对应的节点
-		local_groups=`dbus list ss|grep group|cut -d "=" -f2|sort -u`
+	if [ "$DEL_SUBSCRIBE" == "0" ];then
+		# 尝试删除去掉订阅链接对应的节点
+		local_groups=`dbus list ssconf_basic_group_|cut -d "=" -f2|sort -u`
 		if [ -f "/tmp/group_info.txt" ];then
 			for local_group in $local_groups
 			do
 				MATCH=`cat /tmp/group_info.txt | grep $local_group`
 				if [ -z "$MATCH" ];then
+					echo_date "==================================================================="
 					echo_date $local_group 节点已经不再订阅，将进行删除... 
 					confs_nu=`dbus list ssconf |grep "$local_group"| cut -d "=" -f 1|cut -d "_" -f 4`
 					for conf_nu in $confs_nu
@@ -596,7 +595,7 @@ start_update(){
 						dbus remove ssconf_basic_v2ray_json_$conf_nu
 						dbus remove ssconf_basic_type_$conf_nu
 					done
-					# 删除不再鼎业节点的group信息
+					# 删除不再订阅节点的group信息
 					confs_nu_2=`dbus list ss_online_group_|grep "$local_group"| cut -d "=" -f 1|cut -d "_" -f 4`
 					if [ -n "$confs_nu_2" ];then
 						for conf_nu_2 in $confs_nu_2
@@ -617,7 +616,7 @@ start_update(){
 			fi
 		fi
 	else
-		echo_date "由于订阅过程失败，本次不检测需要删除的订阅，以免误伤；下次成功订阅后再进行检测。"
+		echo_date "由于订阅过程有失败，本次不检测需要删除的订阅，以免误伤；下次成功订阅后再进行检测。"
 	fi
 	# 结束
 	echo_date "==================================================================="

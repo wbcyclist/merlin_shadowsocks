@@ -8,8 +8,8 @@ source /koolshare/scripts/base.sh
 alias echo_date='echo 【$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X)】:'
 
 start_update(){
-	url_back="https://koolshare.ngrok.wang/maintain_files"
-	url_main="https://raw.githubusercontent.com/wbcyclist/merlin_shadowsocks/master/maintain_files/"
+	url_main="https://raw.githubusercontent.com/wbcyclist/merlin_shadowsocks/master/maintain_files"
+	url_back=""
 	# version dectet
 	version_gfwlist1=$(cat /koolshare/ss/rules/version | sed -n 1p | sed 's/ /\n/g'| sed -n 1p)
 	version_chnroute1=$(cat /koolshare/ss/rules/version | sed -n 2p | sed 's/ /\n/g'| sed -n 1p)
@@ -17,23 +17,23 @@ start_update(){
 	
 	echo ==================================================================================================
 	echo_date 开始更新shadowsocks规则，请等待...
-	wget --no-check-certificate --timeout=8 -qO - "$url_main"/version1 > /tmp/version1
+	wget --no-check-certificate --timeout=8 -qO - "$url_main"/version1 > /tmp/ss_version
 	if [ "$?" == "0" ]; then
 		echo_date 检测到在线版本文件，继续...
 	else
 		echo_date 没有检测到在线版本，可能是访问github有问题，去大陆白名单模式试试吧！
-		rm -rf /tmp/version1
+		rm -rf /tmp/ss_version
 		exit
 	fi
 	
-	online_content=$(cat /tmp/version1)
+	online_content=$(cat /tmp/ss_version)
 	if [ -z "$online_content" ];then
-		rm -rf /tmp/version1
+		rm -rf /tmp/ss_version
 	fi
 	
-	git_line1=$(cat /tmp/version1 | sed -n 1p)
-	git_line2=$(cat /tmp/version1 | sed -n 2p)
-	git_line4=$(cat /tmp/version1 | sed -n 4p)
+	git_line1=$(cat /tmp/ss_version | sed -n 1p)
+	git_line2=$(cat /tmp/ss_version | sed -n 2p)
+	git_line4=$(cat /tmp/ss_version | sed -n 4p)
 	
 	version_gfwlist2=$(echo $git_line1 | sed 's/ /\n/g'| sed -n 1p)
 	version_chnroute2=$(echo $git_line2 | sed 's/ /\n/g'| sed -n 1p)
@@ -131,7 +131,7 @@ start_update(){
 	rm -rf /tmp/gfwlist.conf1
 	rm -rf /tmp/chnroute.txt1
 	rm -rf /tmp/cdn.txt1
-	rm -rf /tmp/version1
+	rm -rf /tmp/ss_version
 	
 	echo_date Shadowsocks更新进程运行完毕！
 	# write number

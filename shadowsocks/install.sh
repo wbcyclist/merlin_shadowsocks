@@ -81,6 +81,7 @@ upgrade_ss_conf(){
 	[ -n "`dbus get ssconf_basic_use_kcp_$node`" ] && dbus set ss_basic_koolgame_udp=`dbus get ssconf_basic_use_kcp_$node`
 }
 
+# 如果插件是从低于3.6.5版本升级上来，则需要升级一次数据格式，完全是为超级老的版本而留着
 [ -f "/usr/bin/versioncmp" ] && {
 	SS_VERSION_OLD=`dbus get ss_basic_version_local`
 	[ -z "$SS_VERSION_OLD" ] && SS_VERSION_OLD=3.6.5
@@ -198,6 +199,9 @@ echo_date 设置一些默认值
 [ -z "$ss_acl_default_port" ] && dbus set ss_acl_default_port=all
 [ "$ss_basic_v2ray_network" == "ws_hd" ] && dbus set ss_basic_v2ray_network="ws"
 
+# 移除一些没用的值
+dbus remove ss_basic_version
+
 # 离线安装时设置软件中心内储存的版本号和连接
 CUR_VERSION=`cat /koolshare/ss/version`
 dbus set ss_basic_version_local="$CUR_VERSION"
@@ -205,11 +209,11 @@ dbus set softcenter_module_shadowsocks_install="4"
 dbus set softcenter_module_shadowsocks_version="$CUR_VERSION"
 dbus set softcenter_module_shadowsocks_title="科学上网"
 dbus set softcenter_module_shadowsocks_description="科学上网"
-dbus set softcenter_module_shadowsocks_home_url=Main_Ss_Content.asp
+dbus set softcenter_module_shadowsocks_home_url="Main_Ss_Content.asp"
 
-# v2ray 版本号
-dbus set ss_basic_v2ray_version="v3.35"
-dbus set ss_basic_v2ray_date="20180809"
+# 设置v2ray 版本号
+dbus set ss_basic_v2ray_version="v3.36"
+dbus set ss_basic_v2ray_date="20180823"
 
 echo_date 一点点清理工作...
 rm -rf /tmp/shadowsocks* >/dev/null 2>&1

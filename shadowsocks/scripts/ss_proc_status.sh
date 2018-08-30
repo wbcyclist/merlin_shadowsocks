@@ -61,8 +61,6 @@ get_dns_name() {
 echo_version(){
 	echo_date
 	SOFVERSION=`cat /koolshare/ss/version`
-	KCPTUN_LOCAL_VER="20180316"
-	#KCPTUN_LOCAL_VER=`/koolshare/bin/client_linux_arm5 -version 2>/dev/null | cut -d " " -f3` || "null"
 	if [ -z "$ss_basic_v2ray_version" ];then
 		ss_basic_v2ray_version_tmp=`/koolshare/bin/v2ray -version 2>/dev/null | head -n 1 | cut -d " " -f2`
 		if [ -n "$ss_basic_v2ray_version_tmp" ];then
@@ -97,7 +95,7 @@ echo_version(){
 	echo "cdns			1.0 		2017年12月09日编译"
 	echo "chinadns1		1.3.2 		2017年12月09日编译"
 	echo "chinadns2		2.0.0 		2017年12月09日编译"
-	echo "client_linux_arm5	$KCPTUN_LOCAL_VER	kcptun"
+	echo "client_linux_arm5	20180810	kcptun"
 	echo "v2ray			$ss_basic_v2ray_version		$ss_basic_v2ray_date"
 	echo -----------------------------------------------------------
 }
