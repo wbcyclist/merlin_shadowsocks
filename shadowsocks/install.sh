@@ -20,6 +20,15 @@ case $(uname -m) in
 	;;
 esac
 
+# 低于7.2的固件不能安装
+firmware_version=`nvram get extendno|cut -d "X" -f2|cut -d "-" -f1|cut -d "_" -f1`
+firmware_comp=`versioncmp $firmware_version 7.2`
+if [ "$firmware_comp" == "1" ];then
+	echo_date 本插件不支持X7.2以下的固件版本，当前固件版本$firmware_version，请更新固件！
+	echo_date 退出安装！
+	exit 1
+fi
+
 upgrade_ss_conf(){
 	nodes=`dbus list ssc|grep port|cut -d "=" -f1|cut -d "_" -f4|sort -n`
 	for node in $nodes
@@ -98,13 +107,22 @@ upgrade_ss_conf(){
 }
 
 if [ "$ss_basic_enable" == "1" ];then
-	echo_date 先关闭ss，保证文件更新成功!
+	echo_date 先关闭科学上网插件，保证文件更新成功!
 	sh /koolshare/ss/ssconfig.sh stop
 fi
 
 if [ -n "`ls /koolshare/ss/postscripts/P*.sh 2>/dev/null`" ];then
 	echo_date 备份触发脚本!
 	find /koolshare/ss/postscripts -name "P*.sh" | xargs -i mv {} -f /tmp/ss_backup
+fi
+
+# 如果dnsmasq是mounted状态，先恢复
+MOUNTED=`mount|grep -o dnsmasq`
+if [ -n "$MOUNTED" ];then
+	echo_date 恢复dnsmasq-fastlookup为原版dnsmasq
+	killall dnsmasq >/dev/null 2>&1
+	umount /usr/sbin/dnsmasq
+	service restart_dnsmasq >/dev/null 2>&1
 fi
 
 echo_date 清理旧文件
@@ -134,6 +152,10 @@ rm -rf /koolshare/bin/udp2raw
 rm -rf /koolshare/bin/speeder*
 rm -rf /koolshare/bin/v2ray
 rm -rf /koolshare/bin/v2ctl
+rm -rf /koolshare/bin/jitterentropy-rngd
+rm -rf /koolshare/bin/haveged
+rm -rf /koolshare/bin/https_dns_proxy
+rm -rf /koolshare/bin/dnsmassq
 rm -rf /koolshare/res/layer
 rm -rf /koolshare/res/shadowsocks.css
 rm -rf /koolshare/res/icon-shadowsocks.png
@@ -156,13 +178,13 @@ echo_date 如果长时间没有日志刷新，请等待2分钟后进入插件看
 cp -rf /tmp/shadowsocks/bin/* /koolshare/bin/
 chmod 755 /koolshare/bin/*
 
-echo_date 复制ss的脚本文件！
+echo_date 复制相关的脚本文件！
 cp -rf /tmp/shadowsocks/ss/* /koolshare/ss/
 cp -rf /tmp/shadowsocks/scripts/* /koolshare/scripts/
 cp -rf /tmp/shadowsocks/install.sh /koolshare/scripts/ss_install.sh
 cp -rf /tmp/shadowsocks/uninstall.sh /koolshare/scripts/uninstall_shadowsocks.sh
 
-echo_date 复制网页文件！
+echo_date 复制相关的网页文件！
 cp -rf /tmp/shadowsocks/webs/* /koolshare/webs/
 cp -rf /tmp/shadowsocks/res/* /koolshare/res/
 
@@ -212,13 +234,13 @@ dbus set softcenter_module_shadowsocks_description="科学上网"
 dbus set softcenter_module_shadowsocks_home_url="Main_Ss_Content.asp"
 
 # 设置v2ray 版本号
-dbus set ss_basic_v2ray_version="v3.36"
-dbus set ss_basic_v2ray_date="20180823"
+dbus set ss_basic_v2ray_version="v3.41"
+dbus set ss_basic_v2ray_date="20180914"
 
 echo_date 一点点清理工作...
 rm -rf /tmp/shadowsocks* >/dev/null 2>&1
 dbus set ss_basic_install_status="0"
-echo_date 插件安装成功，你为什么这么屌？！
+echo_date 科学上网插件安装成功！
 
 if [ "$ss_basic_enable" == "1" ];then
 	echo_date 重启ss！
@@ -226,3 +248,4 @@ if [ "$ss_basic_enable" == "1" ];then
 	sh /koolshare/ss/ssconfig.sh restart
 fi
 echo_date 更新完毕，请等待网页自动刷新！
+

@@ -1,5 +1,45 @@
-Koolshare Asuswrt-Merlin shadowsocks for arm router Changelog
+fancyss_arm Changelog
 ===========================================
+4.1.1
+   - add	添加v2ray订阅ver1格式的支持，现在不会再出现因检测到旧的v2ray配置而订阅不到节点的情况；
+   - update	用usleep替换sleep，缩短订阅节点的时间；
+   - fix	修复负载均衡模式下，使用域名作为节点解析错误的问题；
+   - fix	修复切换不同类型节点可能导致dns无法解析的问题；
+
+4.1.0
+   - add	【更新管理】订阅功能添加v2ray支持；
+   - add	【更新管理】链接解析添加节点支持vmess://链接；
+   - fix	修复回国模式的黑白名单的一些问题(#63)；thx to huming2207；
+   - update	为了减少skipd的数据写量，现在只有更改过的参数才会提交到skipd；
+   - update	更新https_dns_proxy中的解析doh域名的dns；
+   - update	现在端口为23456的socks5代理会按需启动，而不是常开(#60)；
+   - update	同步安装包内置v2ray二进制版本v3.39；
+
+4.0.9
+   - add	【附加功能】内添加dnsmasq-fastlookup替换功能，可以将原来遍历查询的dnsmasq替换为hash查询的dnsmasq，极大的降低cpu消耗，加快dns查询速度。
+   		相关链接：https://www.v2ex.com/t/172010，http://koolshare.cn/thread-65484-1-1.html
+
+4.0.8
+   - fix	修复之前一个提交错误，导致4.0.7更新日志中第5、6项实际没得到更新的问题；
+   - add	arm机型添加https_dns_proxy国外解析，https_dns_proxy是DNS Over https（DOH）方案，dns请求走https，支持ECS，因此具有非常好的国外cdn效果！
+   		插件默认使用了cloudflare的服务（1.1.1.1和1.0.0.1），因为是直链cloudflare，如果到1.1.1.1和1.0.0.1丢包较多或者ping较高不建议使用。
+
+4.0.7
+   - fix	订阅：修复订阅链接有跳转情况下，有时候无法订阅的问题；
+   - fix	订阅：修复订阅节点的协议协议参数 (protocol_param)有更新时，订阅完后本地却没有更新的问题；
+   - update	v2ray：修复使用v2ray节点，重启路由，插件不能自启的问题（现在自启不检测虚拟内存）；
+   - update	v2ray：现在总内存在500Mb以上，且可用内存在200Mb以上的机器，不再强制要求虚拟内存；
+   - update	(updated in 4.0.8)为了避免因定义了错误的黑白名单，导致分流出现错误，更新了更加严格的域名格式检查；
+   - update	(updated in 4.0.8)更改jitterentropy-rngd程序为haveged，以提供足够的熵来快速生成高质量的随机数，保证ss-libev启动；
+   - update	更改了脚本中一些逗逼的日志；
+   - update	更新v2ray二进制到v3.38；
+
+4.0.6
+   - fix	修复一个因获取到错误的base64字符串长度而导致订阅节点信息错误，最终导致订阅完成后部分节点被删除的bug
+   - update	去掉chinadns1的-m参数，以兼容更多的使用环境。
+   - update	同步最新规则；
+   - update	优化一些脚本和界面；
+
 4.0.5
    - fix	修复回国模式的一系列问题；
    - fix	修复因机场给出错误的节点信息导致订阅后全部节点被删除的问题；
@@ -14,7 +54,7 @@ Koolshare Asuswrt-Merlin shadowsocks for arm router Changelog
 4.0.3
    - update	本项目(https://github.com/hq450/fancyss)接手ks开发组的科学上网插件的维护，
    		将对应的插件、规则、二进制更新链接更换为本仓库的链接，以保证更新服务正常。
-   - fix	同步最新规则；
+   - update	同步最新规则；
    - update	更新v2ray二进制：v3.36
 
 ===========================================

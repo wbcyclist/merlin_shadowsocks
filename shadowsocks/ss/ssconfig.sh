@@ -111,6 +111,7 @@ restore_conf(){
 	rm -rf /jffs/configs/dnsmasq.d/custom.conf
 	rm -rf /jffs/configs/dnsmasq.d/wblist.conf
 	rm -rf /jffs/configs/dnsmasq.d/ss_host.conf
+	rm -rf /jffs/configs/dnsmasq.d/ss_server.conf
 	rm -rf /jffs/configs/dnsmasq.conf.add
 	rm -rf /jffs/scripts/dnsmasq.postconf
 	rm -rf /tmp/sscdn.conf
@@ -214,8 +215,15 @@ kill_process(){
 		echo_date 关闭ud2raw进程...
 		killall udp2raw >/dev/null 2>&1
 	fi
-	if [ -n "`pidof jitterentropy-rngd`" ];then
-		killall jitterentropy-rngd >/dev/null 2>&1
+	https_dns_proxy_process=`pidof https_dns_proxy`
+	if [ -n "$https_dns_proxy_process" ];then 
+		echo_date 关闭https_dns_proxy进程...
+		killall https_dns_proxy >/dev/null 2>&1
+	fi
+	haveged_process=`pidof haveged`
+	if [ -n "$haveged_process" ];then 
+		echo_date 关闭haveged进程...
+		killall haveged >/dev/null 2>&1
 	fi
 }
 
@@ -435,7 +443,7 @@ start_dns(){
 	fi
 	
 	# Start ss-local
-	[ "$ss_basic_type" != "3" ] && start_sslocal
+	# [ "$ss_basic_type" != "3" ] && start_sslocal
 	
 	# Start cdns
 	if [ "$ss_foreign_dns" == "1" ];then
@@ -485,6 +493,7 @@ start_dns(){
 	# Start DNS2SOCKS (default)
 	if [ "$ss_foreign_dns" == "3" ] || [ -z "$ss_foreign_dns" ];then
 		[ -z "$ss_foreign_dns" ] && dbus set ss_foreign_dns="3"
+		start_sslocal
 		echo_date 开启dns2socks，用于dns解析...
 		dns2socks 127.0.0.1:23456 "$ss_dns2socks_user" 127.0.0.1:$DNS_PORT > /dev/null 2>&1 &
 	fi
@@ -504,6 +513,7 @@ start_dns(){
 		elif [ "$ss_basic_type" == "3" ];then
 			echo_date V2Ray下不支持ss-tunnel，改用dns2socks！
 			dbus set ss_foreign_dns=3
+			start_sslocal
 			echo_date 开启dns2socks，用于dns解析...
 			dns2socks 127.0.0.1:23456 "$ss_dns2socks_user" 127.0.0.1:$DNS_PORT > /dev/null 2>&1 &
 		fi
@@ -511,10 +521,11 @@ start_dns(){
 	
 	#start chinadns1
 	if [ "$ss_foreign_dns" == "5" ];then
+		start_sslocal
 		echo_date 开启dns2socks，用于chinadns1上游...
 		dns2socks 127.0.0.1:23456 "$ss_chinadns1_user" 127.0.0.1:1055 > /dev/null 2>&1 &
 		echo_date 开启chinadns1，用于dns解析...
-		chinadns1 -p $DNS_PORT -s $CDN,127.0.0.1:1055 -m -d -c /koolshare/ss/rules/chnroute.txt > /dev/null 2>&1 &
+		chinadns1 -p $DNS_PORT -s $CDN,127.0.0.1:1055 -d -c /koolshare/ss/rules/chnroute.txt > /dev/null 2>&1 &
 	fi
 
 	#start https_dns_proxy
@@ -534,7 +545,7 @@ start_dns(){
 			# ss服务器可能是域名且没有正确解析
 			ss_real_server_ip="8.8.8.8"
 		fi
-		https_dns_proxy -u nobody -p 7913 -b 1.1.1.1,1.0.0.1 -e $ss_real_server_ip/16 -r "https://cloudflare-dns.com/dns-query?ct=application/dns-json&" -d
+		https_dns_proxy -u nobody -p 7913 -b 8.8.8.8,1.1.1.1,8.8.4.4,1.0.0.1,145.100.185.15,145.100.185.16,185.49.141.37 -e $ss_real_server_ip/16 -r "https://cloudflare-dns.com/dns-query?ct=application/dns-json&" -d
 	fi
 	
 	# start v2ray DNS_PORT
@@ -544,7 +555,7 @@ start_dns(){
 		else
 			echo_date $(get_type_name $ss_basic_type)下不支持v2ray dns，改用dns2socks！
 			dbus set ss_foreign_dns=3
-			[ "$ss_basic_type" != "3" ] && start_sslocal
+			start_sslocal
 			echo_date 开启dns2socks，用于dns解析...
 			dns2socks 127.0.0.1:23456 "$ss_dns2socks_user" 127.0.0.1:$DNS_PORT > /dev/null 2>&1 &
 		fi
@@ -557,6 +568,7 @@ start_dns(){
 		else
 			echo_date 非回国模式，国外dns不能使用，自动切换到dns2socks方案。
 			dbus set ss_foreign_dns=3
+			start_sslocal
 			echo_date 开启dns2socks，用于dns解析...
 			dns2socks 127.0.0.1:23456 "$ss_dns2socks_user" 127.0.0.1:$DNS_PORT > /dev/null 2>&1 &
 		fi
@@ -566,7 +578,7 @@ start_dns(){
 #--------------------------------------------------------------------------------------
 
 detect_domain(){
-	domain1=`echo $1|grep -E "^https://|^http://"`
+	domain1=`echo $1|grep -E "^https://|^http://|www|/"`
 	domain2=`echo $1|grep -E "\."`
 	if [ -n "$domain1" ] || [ -z "$domain2" ];then
 		return 1
@@ -628,7 +640,7 @@ create_dnsmasq_conf(){
 		echo "$ss_dnsmasq" | base64_decode | sort -u >> /tmp/custom.conf
 	fi
 
-	# these sites need to go ss
+	# these sites need to go ss inside router
 	if [ "$ss_basic_mode" != "6" ];then
 		echo "#for router itself" >> /tmp/wblist.conf
 		echo "server=/.google.com.tw/127.0.0.1#7913" >> /tmp/wblist.conf
@@ -658,22 +670,30 @@ create_dnsmasq_conf(){
 		do
 			detect_domain "$wan_white_domain"
 			if [ "$?" == "0" ];then
-				echo "$wan_white_domain" | sed "s/^/server=&\/./g" | sed "s/$/\/$CDN#53/g" >> /tmp/wblist.conf
-				echo "$wan_white_domain" | sed "s/^/ipset=&\/./g" | sed "s/$/\/white_list/g" >> /tmp/wblist.conf
+				# 回国模式下，用外国DNS，否则用中国DNS。
+				if [ "$ss_basic_mode" != "6" ];then
+					echo "$wan_white_domain" | sed "s/^/server=&\/./g" | sed "s/$/\/$CDN#53/g" >> /tmp/wblist.conf
+					echo "$wan_white_domain" | sed "s/^/ipset=&\/./g" | sed "s/$/\/white_list/g" >> /tmp/wblist.conf
+				else
+					echo "$wan_white_domain" | sed "s/^/server=&\/./g" | sed "s/$/\/$ss_direct_user/g" >> /tmp/wblist.conf
+					echo "$wan_white_domain" | sed "s/^/ipset=&\/./g" | sed "s/$/\/white_list/g" >> /tmp/wblist.conf
+				fi
 			else
 				echo_date ！！检测到域名白名单内的【"$wan_white_domain"】不是域名格式！！此条将不会添加！！
 			fi
 		done
 	fi
 	
-	# apple 和 microsoft不能走ss
-	echo "#for special site" >> /tmp/wblist.conf
-	for wan_white_domain2 in "apple.com" "microsoft.com"
-	do 
-		echo "$wan_white_domain2" | sed "s/^/server=&\/./g" | sed "s/$/\/$CDN#53/g" >> /tmp/wblist.conf
-		echo "$wan_white_domain2" | sed "s/^/ipset=&\/./g" | sed "s/$/\/white_list/g" >> /tmp/wblist.conf
-	done
-	
+	# 非回国模式下，apple 和 microsoft需要中国cdn
+	if [ "$ss_basic_mode" != "6" ];then
+		echo "#for special site" >> /tmp/wblist.conf
+		for wan_white_domain2 in "apple.com" "microsoft.com"
+		do 
+			echo "$wan_white_domain2" | sed "s/^/server=&\/./g" | sed "s/$/\/$CDN#53/g" >> /tmp/wblist.conf
+			echo "$wan_white_domain2" | sed "s/^/ipset=&\/./g" | sed "s/$/\/white_list/g" >> /tmp/wblist.conf
+		done
+	fi
+
 	# append black domain list, through ss
 	wanblackdomain=$(echo $ss_wan_black_domain | base64_decode)
 	if [ -n "$ss_wan_black_domain" ];then
@@ -683,27 +703,32 @@ create_dnsmasq_conf(){
 		do
 			detect_domain "$wan_black_domain"
 			if [ "$?" == "0" ];then
-				echo "$wan_black_domain" | sed "s/^/server=&\/./g" | sed "s/$/\/127.0.0.1#7913/g" >> /tmp/wblist.conf
-				echo "$wan_black_domain" | sed "s/^/ipset=&\/./g" | sed "s/$/\/black_list/g" >> /tmp/wblist.conf
+				if [ "$ss_basic_mode" != "6" ];then
+					echo "$wan_black_domain" | sed "s/^/server=&\/./g" | sed "s/$/\/127.0.0.1#7913/g" >> /tmp/wblist.conf
+					echo "$wan_black_domain" | sed "s/^/ipset=&\/./g" | sed "s/$/\/black_list/g" >> /tmp/wblist.conf
+				else
+					echo "$wan_black_domain" | sed "s/^/server=&\/./g" | sed "s/$/\/$CDN#53/g" >> /tmp/wblist.conf
+					echo "$wan_black_domain" | sed "s/^/ipset=&\/./g" | sed "s/$/\/black_list/g" >> /tmp/wblist.conf
+				fi
 			else
 				echo_date ！！检测到域名黑名单内的【"$wan_black_domain"】不是域名格式！！此条将不会添加！！
 			fi
 		done
 	fi
 
-	# 使用cdn.txt和gfwlist的策略
-	# cdn.txt的作用：cdn.txt内包含了4万多条国内的网站，基本包含了普通人的所有国内上网需求，使用cdn.txt会让里面指定的网站强制走中国DNS的解析
+	# 使用cdn.conf和gfwlist的策略
+	# cdn.conf的作用：cdn.conf内包含了4万多条国内的网站，基本包含了普通人的所有国内上网需求，使用cdn.conf会让里面指定的网站强制走中国DNS的解析
 	# gfwlist的主用：gfwlist内包含了已知的被墙网站，大部分人的翻墙需求（google, youtube, netflix, etc...），能得到满足，使用gfwlist会让里面指定的网站走国外的dns解析（墙内出去需要防污染，墙外进来直连即可）
-	# 1.1 在国内优先模式下（在墙内出去），dnsmasq的全局dns是中国的，所以不需要cdn.txt，此时对路由的dnsmasq的负担也较小，但是为了保证国外被墙的网站解析无污染，使用gfwlist来解析国外被墙网站（此处需要防污染的软件来获得正确dns，如dns2socks的转发方式，chinadns的过滤方式，cdns的edns的特殊获取方式等），这样如果遇到gfwlist漏掉的，或者上普通未被墙的国外网站可能速度较慢；
-	# 1.2 在国内优先模式下（在墙外回来），dnsmasq的全局dns是中国的，所以不需要cdn.txt，此时对路由的dnsmasq的负担也较小，但是为了保证国外被墙的网站解析无污染，使用gfwlist来解析国外被墙网站（因为本来身在国外，直连国外当地dns即可，如果转发，则会让这些请求在国内vps上去做，导致污染，如果使用chinadns过滤，则无需指定通过转发的），但是这样会导致很多国外网站的访问是从国内的vps发起的，导致一些国外网站的体验不好
+	# 1.1 在国内优先模式下（在墙内出去），dnsmasq的全局dns是中国的，所以不需要cdn.conf，此时对路由的dnsmasq的负担也较小，但是为了保证国外被墙的网站解析无污染，使用gfwlist来解析国外被墙网站（此处需要防污染的软件来获得正确dns，如dns2socks的转发方式，chinadns的过滤方式，cdns的edns的特殊获取方式等），这样如果遇到gfwlist漏掉的，或者上普通未被墙的国外网站可能速度较慢；
+	# 1.2 在国内优先模式下（在墙外回来），dnsmasq的全局dns是中国的，所以不需要cdn.conf，此时对路由的dnsmasq的负担也较小，但是为了保证国外被墙的网站解析无污染，使用gfwlist来解析国外被墙网站（因为本来身在国外，直连国外当地dns即可，如果转发，则会让这些请求在国内vps上去做，导致污染，如果使用chinadns过滤，则无需指定通过转发的），但是这样会导致很多国外网站的访问是从国内的vps发起的，导致一些国外网站的体验不好
 	
-	# 2.1 在国外优先的模式下（在墙内出去），dnsmasq的全局dns是国外的（此处需要使用防污染的软件来获得正确的dns），但是要保证国内的网站的解析效果，只好引入cdn.txt，此时路由的负担也会较大，这样国内的网站解析效果完全靠cdn.tx，一般来说能普通人的所有国内上网需求
-	# 2.2 在国外优先的模式下（在墙外回来），dnsmasq的全局dns是国外的（此处只需要直连国外当地的dns服务器即可！），但是要保证国内的网站的解析效果，只好引入cdn.txt，此时路由的负担也会较大，这样国内的网站解析效果完全靠cdn.txt，一般来说翻墙回来都是看国内影视剧和音乐等需要，cdn.txt应该能够满足。
+	# 2.1 在国外优先的模式下（在墙内出去），dnsmasq的全局dns是国外的（此处需要使用防污染的软件来获得正确的dns），但是要保证国内的网站的解析效果，只好引入cdn.conf，此时路由的负担也会较大，这样国内的网站解析效果完全靠cdn.tx，一般来说能普通人的所有国内上网需求
+	# 2.2 在国外优先的模式下（在墙外回来），dnsmasq的全局dns是国外的（此处只需要直连国外当地的dns服务器即可！），但是要保证国内的网站的解析效果，只好引入cdn.conf，此时路由的负担也会较大，这样国内的网站解析效果完全靠cdn.conf，一般来说翻墙回来都是看国内影视剧和音乐等需要，cdn.conf应该能够满足。
 
 	# 总结
-	# 国内优先模式，使用gfwlist，不用cdn.txt，国内cdn好，国外cdn差，路由器负担小
-	# 国外优先模式，不用gfwlist，使用cdn.txt，国内cdn好，国外cdn好，路由器负担大（dns2socks ss-tunnel，cdns）
-	# 国外优先模式，如果dns自带了国内cdn，不用gfwlist，不用cdn.txt，国内cdn好，国外cdn好，路由器负小（chinadns1 chinadns2）
+	# 国内优先模式，使用gfwlist，不用cdn.conf，国内cdn好，国外cdn差，路由器负担小
+	# 国外优先模式，不用gfwlist，使用cdn.conf，国内cdn好，国外cdn好，路由器负担大（dns2socks ss-tunnel，cdns）
+	# 国外优先模式，如果dns自带了国内cdn，不用gfwlist，不用cdn.conf，国内cdn好，国外cdn好，路由器负小（chinadns1 chinadns2）
 
 	# 使用场景 
 	# 1.1 gfwlist模式：该模式的特点就是只有gfwlist内的网站走代理，所以dns部分也应该是相同的策略，即国内优先模式。
@@ -719,24 +744,25 @@ create_dnsmasq_conf(){
 
 	if [ "$ss_basic_mode" == "6" ];then
 		# 回国模式中，因为国外DNS无论如何都不会污染的，所以采取的策略是直连就行，默认国内优先即可
-		echo_date 自动判断在回国模式中使用国内优先模式，不加载cdn.txt
+		echo_date 自动判断在回国模式中使用国内优先模式，不加载cdn.conf
 	else
 		if [ "$ss_basic_mode" == "1" -a -z "$chn_on" -a -z "$all_on" ] || [ "$ss_basic_mode" == "6" ];then
 			# gfwlist模式的时候，且访问控制主机中不存在 大陆白名单模式 游戏模式 全局模式，则使用国内优先模式
 			# 回国模式下自动判断使用国内优先
-			echo_date 自动判断使用国内优先模式，不加载cdn.txt
+			echo_date 自动判断使用国内优先模式，不加载cdn.conf
 		else
 			# 其它情况，均使用国外优先模式
 			if [ "$ss_foreign_dns" != "2" ] && [ "$ss_foreign_dns" != "5" ];then
-				# 因为chinadns1 chinadns2自带国内cdn，所以也不需要cdn.txt
+				# 因为chinadns1 chinadns2自带国内cdn，所以也不需要cdn.conf
 				echo_date 自动判断dns解析使用国外优先模式...
-				echo_date 你选择的解析方案【$(get_dns_name $ss_foreign_dns)】无国内cdn，需要加载cdn.txt，路由器开销较大...
+				echo_date 国外解析方案【$(get_dns_name $ss_foreign_dns)】，需要加载cdn.conf提供国内cdn...
+				echo_date 建议将系统dnsmasq替换为dnsmasq-fastlookup，以减轻路由cpu消耗...
 				echo_date 生成cdn加速列表到/tmp/sscdn.conf，加速用的dns：$CDN
 				echo "#for china site CDN acclerate" >> /tmp/sscdn.conf
 				cat /koolshare/ss/rules/cdn.txt | sed "s/^/server=&\/./g" | sed "s/$/\/&$CDN/g" | sort | awk '{if ($0!=line) print;line=$0}' >>/tmp/sscdn.conf
 			else
 				echo_date 自动判断dns解析使用国外优先模式...
-				echo_date 你选择解析方案【$(get_dns_name $ss_foreign_dns)】自带国内cdn，不许需要加载cdn.txt，路由器开销小...
+				echo_date 你选择解析方案【$(get_dns_name $ss_foreign_dns)】自带国内cdn，无需加载cdn.conf，路由器开销小...
 			fi
 		fi
 	fi
@@ -761,6 +787,7 @@ create_dnsmasq_conf(){
 		ln -sf /koolshare/ss/rules/gfwlist.conf /jffs/configs/dnsmasq.d/gfwlist.conf
 	elif [ "$ss_basic_mode" == "2" ] || [ "$ss_basic_mode" == "3" ];then
 		if [ -n "$gfw_on" ];then
+			echo_date 创建gfwlist的软连接到/jffs/etc/dnsmasq.d/文件夹.
 			ln -sf /koolshare/ss/rules/gfwlist.conf /jffs/configs/dnsmasq.d/gfwlist.conf
 		fi
 	elif [ "$ss_basic_mode" == "6" ];then
@@ -780,8 +807,9 @@ create_dnsmasq_conf(){
 	[ ! -L "/jffs/scripts/dnsmasq.postconf" ] && ln -sf /koolshare/ss/rules/dnsmasq.postconf /jffs/scripts/dnsmasq.postconf
 }
 
-start_jitterentropy(){
-	jitterentropy-rngd >/dev/null 2>&1
+start_haveged(){
+	echo_date "启动haveged，为系统提供更多的可用熵！"
+	haveged -w 1024 >/dev/null 2>&1
 }
 
 auto_start(){
@@ -934,6 +962,8 @@ start_ss_redir(){
 		BIN=rss-redir
 		ARG_OBFS=""
 	elif  [ "$ss_basic_type" == "0" ];then
+		# ss-libev需要大于160的熵才能正常工作
+		start_haveged
 		echo_date 开启ss-redir进程，用于透明代理.
 		if [ "$ss_basic_ss_obfs" == "0" ];then
 			BIN=ss-redir
@@ -1293,6 +1323,10 @@ creat_v2ray_json(){
 		echo "$ss_basic_v2ray_json" | base64_decode > "$V2RAY_CONFIG_FILE_TMP"
 
 		OUTBOUND=`cat "$V2RAY_CONFIG_FILE_TMP" | jq .outbound`
+		#JSON_INFO=`cat "$V2RAY_CONFIG_FILE_TMP" | jq 'del (.inbound) | del (.inboundDetour) | del (.log)'`
+		#INBOUND_TAG=`cat "$V2RAY_CONFIG_FILE_TMP" | jq '.inbound.tag'||""
+		#INBOUND_DETOUR_TAG=`cat "$V2RAY_CONFIG_FILE_TMP" | jq '.inbound.tag'||""
+		
 		local TEMPLATE="{
 						\"log\": {
 							\"access\": \"/dev/null\",
@@ -1326,6 +1360,8 @@ creat_v2ray_json(){
 		#local TEMPLATE=`cat /koolshare/ss/rules/v2ray_template.json`
 		echo_date 解析V2Ray配置文件...
 		echo $TEMPLATE | jq --argjson args "$OUTBOUND" '. + {outbound: $args}' > "$V2RAY_CONFIG_FILE"
+		#echo $TEMPLATE | jq --argjson args "$JSON_INFO" '. + $args' > "$V2RAY_CONFIG_FILE"
+		
 		echo_date V2Ray配置文件写入成功到"$V2RAY_CONFIG_FILE"
 		#close_in_five
 		
@@ -1423,7 +1459,7 @@ creat_v2ray_json(){
 
 start_v2ray(){
 	cd /koolshare/bin
-	export GOGC=30
+	#export GOGC=30
 	v2ray --config=/koolshare/ss/v2ray.json >/dev/null 2>&1 &
 	
 	local i=10
@@ -1971,18 +2007,26 @@ detect(){
 		close_in_five
 	fi
 	
-	#检测v2ray模式下是否启用虚拟内存
-	if [ "$ss_basic_type" == "3" ];then
-		SWAPSTATUS=`free|grep Swap|awk '{print $2}'`
-		if [ "$SWAPSTATUS" != "0" ];then
-			echo_date "你选择了v2ray节点，当前系统已经启用虚拟内存！！符合启动条件！"
+	# v2ray模式下检测系统内存和虚拟内存
+	# 在开机启动/wan重启触发插件重启的时候，不检测内存和虚拟内存
+	# WAN_ACTION=`ps|grep /jffs/scripts/wan-start|grep -v grep`
+	if [ "$ss_basic_type" == "3" -a -z "$WAN_ACTION" ];then
+		TOTAL_MEM=`free|grep Mem|awk '{print $2}'`
+		FREE_MEM=`free|grep Mem|awk '{print $4}'`
+		if [ "$TOTAL_MEM" -gt "500000" -a "$FREE_MEM" -gt "200000" ];then
+			echo_date "总内存大于500M，且可用内存大于200M，v2ray符合启动条件！"
 		else
-			echo_date "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-			echo_date "+          你选择了v2ray节点，而当前系统未启用虚拟内存！               +"
-			echo_date "+        v2ray程序对路由器开销极大，请挂载虚拟内存后再开启！            +"
-			echo_date "+       如果使用 ws + tls + web 方案，建议1G虚拟内存，以保证稳定！     +"
-			echo_date "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-			close_in_five
+			SWAPSTATUS=`free|grep Swap|awk '{print $2}'`
+			if [ "$SWAPSTATUS" != "0" ];then
+				echo_date "你选择了v2ray节点，当前系统已经启用虚拟内存！！符合启动条件！"
+			else
+				echo_date "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+				echo_date "+          你选择了v2ray节点，而当前系统未启用虚拟内存！               +"
+				echo_date "+        v2ray程序对路由器开销极大，请挂载虚拟内存后再开启！            +"
+				echo_date "+       如果使用 ws + tls + web 方案，建议1G虚拟内存，以保证稳定！     +"
+				echo_date "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+				close_in_five
+			fi
 		fi
 	fi
 	
@@ -1997,6 +2041,73 @@ detect(){
 	fi
 }
 
+mount_dnsmasq(){
+	killall dnsmasq >/dev/null 2>&1
+	mount --bind /koolshare/bin/dnsmasq /usr/sbin/dnsmasq
+	#service restart_dnsmasq >/dev/null 2>&
+}
+
+umount_dnsmasq(){
+	killall dnsmasq >/dev/null 2>&1
+	umount /usr/sbin/dnsmasq
+}
+
+
+mount_dnsmasq_now(){
+	MOUNTED=`mount|grep -o dnsmasq`
+	case $ss_basic_dnsmasq_fastlookup in
+	0)
+		if [ -n "$MOUNTED" ];then
+			echo_date "【dnsmasq替换】：从dnsmasq-fastlookup切换为原版dnsmasq"
+			umount_dnsmasq
+		fi
+		;;
+	1|3)
+		if [ -n "$MOUNTED" ];then
+			echo_date "【dnsmasq替换】：dnsmasq-fastlookup已经替换过了！"
+		else
+			echo_date "【dnsmasq替换】：用dnsmasq-fastlookup替换原版dnsmasq！"
+			mount_dnsmasq
+		fi
+		;;
+	2)
+		if [ -L "/jffs/configs/cdn.conf" ];then
+			if [ -z "$MOUNTED" ];then
+				echo_date "【dnsmasq替换】：检测到cdn.conf，用dnsmasq-fastlookup替换原版dnsmasq！"
+				mount_dnsmasq
+			fi
+		else
+			if [ -n "$MOUNTED" ];then
+				echo_date "【dnsmasq替换】：没有检测到cdn.conf，从dnsmasq-fastlookup切换为原版dnsmasq"
+				umount_dnsmasq
+			else
+				echo_date "【dnsmasq替换】：没有检测到cdn.conf，不替换dnsmasq-fastlookup"
+			fi
+		fi
+		;;
+	esac
+}
+
+umount_dnsmasq_now(){
+	MOUNTED=`mount|grep -o dnsmasq`
+	case $ss_basic_dnsmasq_fastlookup in
+	0|1|2)
+		if [ -n "$MOUNTED" ];then
+			echo_date "【dnsmasq替换】：从dnsmasq-fastlookup切换为原版dnsmasq"
+			umount_dnsmasq
+		fi
+		;;
+	3)
+		if [ -n "$MOUNTED" ];then
+			echo_date "【dnsmasq替换】：dnsmasq-fastlookup已经替换过了，插件关闭后保持替换！"
+		else
+			echo_date "【dnsmasq替换】：用dnsmasq-fastlookup替换原版dnsmasq！且插件关闭后保持替换！"
+			mount_dnsmasq
+		fi
+		;;
+	esac
+}
+
 disable_ss(){
 	echo_date ======================= 梅林固件 - 【科学上网】 ========================
 	echo_date
@@ -2009,6 +2120,7 @@ disable_ss(){
 	remove_ss_trigger_job
 	remove_ss_reboot_job
 	restore_conf
+	umount_dnsmasq_now
 	restart_dnsmasq
 	flush_nat
 	kill_cron_job
@@ -2045,9 +2157,6 @@ apply_ss(){
 	load_module
 	creat_ipset
 	create_dnsmasq_conf
-	start_jitterentropy
-	sleep 1
-	#get_status
 	# do not re generate json on router start, use old one
 	[ -z "$WAN_ACTION" ] && [ "$ss_basic_type" != "3" ] && creat_ss_json
 	[ -z "$WAN_ACTION" ] && [ "$ss_basic_type" = "3" ] && creat_v2ray_json
@@ -2059,6 +2168,7 @@ apply_ss(){
 	#===load nat start===
 	load_nat
 	#===load nat end===
+	mount_dnsmasq_now
 	restart_dnsmasq
 	auto_start
 	write_cron_job

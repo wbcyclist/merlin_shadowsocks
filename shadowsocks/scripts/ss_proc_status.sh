@@ -117,6 +117,7 @@ check_status(){
 	HAPROXY=`pidof haproxy`
 	V2RAY=`pidof v2ray`
 	HDP=`pidof https_dns_proxy`
+	DMQ=`pidof dnsmasq`
 	game_on=`dbus list ss_acl_mode|cut -d "=" -f 2 | grep 3`
 
 	if [ "$ss_basic_type" == "0" ];then
@@ -184,8 +185,11 @@ check_status(){
 			fi
 			[ -n "$DNS2SOCKS" ] && echo "dns2socks	工作中	pid：$DNS2SOCKS" || echo "dns2socks	未运行"
 			[ -n "$CHINADNS1" ] && echo "chinadns1	工作中	pid：$CHINADNS1" || echo "chinadns1	未运行"
+		elif [ "$ss_foreign_dns" == "6" ];then
+			[ -n "$HDP" ] && echo "https_dns_proxy	工作中	pid：$HDP" || echo "https_dns_proxy	未运行"
 		fi
 	fi
+	[ -n "$DMQ" ] && echo "dnsmasq		工作中	pid：$DMQ" || echo "dnsmasq	未运行"
 
 	echo -----------------------------------------------------------
 	echo
