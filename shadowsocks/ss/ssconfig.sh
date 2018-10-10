@@ -819,7 +819,7 @@ auto_start(){
 	if [ ! -f /jffs/scripts/nat-start ]; then
 	cat > /jffs/scripts/nat-start <<-EOF
 		#!/bin/sh
-		dbus fire onnatstart
+		/usr/bin/onnatstart.sh
 		
 		EOF
 	fi
@@ -836,7 +836,7 @@ auto_start(){
 	if [ ! -f /jffs/scripts/wan-start ]; then
 		cat > /jffs/scripts/wan-start <<-EOF
 			#!/bin/sh
-			dbus fire onwanstart
+			/usr/bin/onwanstart.sh
 			
 			EOF
 	fi
@@ -1884,6 +1884,7 @@ write_numbers(){
 
 set_ulimit(){
 	ulimit -n 16384
+	echo 1 > /proc/sys/vm/overcommit_memory
 }
 
 remove_ss_reboot_job(){
@@ -2005,29 +2006,6 @@ detect(){
 		echo_date "+     请前往【系统管理】- 【系统设置】去开启，并重启路由器后重试！！      +"
 		echo_date "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 		close_in_five
-	fi
-	
-	# v2ray模式下检测系统内存和虚拟内存
-	# 在开机启动/wan重启触发插件重启的时候，不检测内存和虚拟内存
-	# WAN_ACTION=`ps|grep /jffs/scripts/wan-start|grep -v grep`
-	if [ "$ss_basic_type" == "3" -a -z "$WAN_ACTION" ];then
-		TOTAL_MEM=`free|grep Mem|awk '{print $2}'`
-		FREE_MEM=`free|grep Mem|awk '{print $4}'`
-		if [ "$TOTAL_MEM" -gt "500000" -a "$FREE_MEM" -gt "200000" ];then
-			echo_date "总内存大于500M，且可用内存大于200M，v2ray符合启动条件！"
-		else
-			SWAPSTATUS=`free|grep Swap|awk '{print $2}'`
-			if [ "$SWAPSTATUS" != "0" ];then
-				echo_date "你选择了v2ray节点，当前系统已经启用虚拟内存！！符合启动条件！"
-			else
-				echo_date "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-				echo_date "+          你选择了v2ray节点，而当前系统未启用虚拟内存！               +"
-				echo_date "+        v2ray程序对路由器开销极大，请挂载虚拟内存后再开启！            +"
-				echo_date "+       如果使用 ws + tls + web 方案，建议1G虚拟内存，以保证稳定！     +"
-				echo_date "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-				close_in_five
-			fi
-		fi
 	fi
 	
 	# 检测是否在lan设置中是否自定义过dns,如果有给干掉
