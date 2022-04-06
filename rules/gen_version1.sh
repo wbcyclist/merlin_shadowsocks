@@ -146,3 +146,46 @@ else
 		gsed -i "7c `date +%Y-%m-%d` # $md5sum7 WhiteList_new" version1
 	fi
 fi
+
+# 8 apple_china.txt
+if type md5sum >/dev/null 2>&1; then 
+	md5sum8=`md5sum apple_china.txt|tr " " "\n"|sed -n 1p`
+	oldmd5sum8=`cat version1 | sed -n 8p | tr " " "\n" | sed -n 3p`
+	if [ "$md5sum8"x = "$oldmd5sum8"x ];then
+		echo 'apple_china not changed'
+	else
+		echo 'update apple_china!'
+		gsed -i "8c `date +%Y-%m-%d` # $md5sum8 apple_china" version1
+	fi
+else 
+	md5sum8=`md5 apple_china.txt|tr " " "\n"|sed -n 4p`
+	oldmd5sum8=`cat version1 | sed -n 8p | tr " " "\n" | sed -n 3p`
+	if [ "$md5sum8"x = "$oldmd5sum8"x ];then
+		echo 'apple_china not changed'
+	else
+		echo 'update apple_china!'
+		gsed -i "8c `date +%Y-%m-%d` # $md5sum8 apple_china" version1
+	fi
+fi
+
+# 9 google_china.txt
+if type md5sum >/dev/null 2>&1; then 
+	md5sum9=`md5sum google_china.txt|tr " " "\n"|sed -n 1p`
+	oldmd5sum9=`cat version1 | sed -n 9p | tr " " "\n" | sed -n 3p`
+	if [ "$md5sum9"x = "$oldmd5sum9"x ];then
+		echo 'google_china not changed'
+	else
+		echo 'update google_china!'
+		gsed -i "9c `date +%Y-%m-%d` # $md5sum9 google_china" version1
+	fi
+else 
+	md5sum9=`md5 google_china.txt|tr " " "\n"|sed -n 4p`
+	oldmd5sum9=`cat version1 | sed -n 9p | tr " " "\n" | sed -n 3p`
+	if [ "$md5sum9"x = "$oldmd5sum9"x ];then
+		echo 'google_china not changed'
+	else
+		echo 'update google_china!'
+		gsed -i "9c `date +%Y-%m-%d` # $md5sum9 google_china" version1
+	fi
+fi
+

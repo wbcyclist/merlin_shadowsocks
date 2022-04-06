@@ -16,6 +16,8 @@ cp -f ../rules/chnroute.txt shadowsocks/ss/rules/chnroute.txt
 cp -f ../rules/cdn.txt shadowsocks/ss/rules/cdn.txt
 #cp -f ../rules/Routing.txt shadowsocks/ss/rules/Routing.txt
 #cp -f ../rules/WhiteList_new.txt shadowsocks/ss/rules/WhiteList.txt
+cp -f ../rules/apple_china.txt shadowsocks/ss/rules/apple_china.txt
+cp -f ../rules/google_china.txt shadowsocks/ss/rules/google_china.txt
 
 cp -f ../rules/version1 shadowsocks/ss/rules/version
 
